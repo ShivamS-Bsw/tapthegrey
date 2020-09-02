@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BSW_FirstTask</string>
+
+    <string name="splash_screen">स्प्लैश स्क्रीन</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">हैलो खाली टुकड़ा</string>
+    <string name="game_over">खेल खत्म</string>
+    <string name="score">स्कोर</string>
+    <string name="_124">124</string>
+    <string name="return_to_main_menu">मुख्य मेनू पर लौटें</string>
+    <string name="replay">फिर से खेलना</string>
+    <string name="best">श्रेष्ठ</string>
+    <string name="tap_the_grey_color">ग्रे कलर पर टैप करें</string>
+    <string name="change_language">भाषा बदलो</string>
+    <string name="save_game">क्या आप इस गेम को बचाना चाहते हैं?</string>
+    <string name="continue_game">सहेजे गए खेल के साथ जारी रखें?</string>
+    <string name="yes">हाँ</string>
+    <string name="no">नहीं</string>
+</resources>

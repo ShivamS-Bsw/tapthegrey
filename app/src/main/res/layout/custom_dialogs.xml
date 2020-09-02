@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layoutDirection="ltr"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:background="@drawable/rounded_dialog_border"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:id="@+id/rl"
+            android:padding="@dimen/_16sdp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/dialog_text"
+                android:textSize="@dimen/_16ssp"
+                android:textColor="@color/black"
+                android:text="@string/save_game"
+                android:layout_width="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_height="wrap_content"/>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_below="@id/dialog_text"
+                android:layout_width="wrap_content"
+                android:layout_margin="@dimen/_8sdp"
+                android:layout_centerInParent="true"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/dialog_button1"
+                    android:text="@string/yes"
+                    android:textSize="@dimen/_10ssp"
+                    android:layout_marginEnd="@dimen/_16sdp"
+                    android:background="@drawable/rounded_dialog_border"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_24sdp"/>
+
+                <Button
+                    android:id="@+id/dialog_button2"
+                    android:text="@string/no"
+                    android:textSize="@dimen/_10ssp"
+                    android:background="@drawable/rounded_dialog_border"
+                    android:layout_marginStart="@dimen/_16sdp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_24sdp"/>
+            </LinearLayout>
+            <ImageView
+                android:id="@+id/close_dialog"
+                android:layout_width="wrap_content"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/ic_close_black_24dp"
+                android:layout_height="wrap_content"/>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:id="@+id/dialog_linear_layout"
+            android:layout_below="@id/rl"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="@dimen/_16sdp"
+            android:background="@drawable/rounded_dialog_border"
+            android:layout_height="wrap_content"/>
+
+    </RelativeLayout>
+</RelativeLayout>

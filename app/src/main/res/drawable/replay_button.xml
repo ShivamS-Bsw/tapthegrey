@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android" >
+    <!-- default -->
+    <item android:state_pressed="false" android:state_focused="false">
+        <shape >
+            <solid android:color="@color/red" />
+            <padding
+                android:left="@dimen/_30sdp"
+                android:right="@dimen/_30sdp"
+                android:top="@dimen/_10sdp"
+                android:bottom="@dimen/_10sdp" />
+        </shape>
+    </item>
+
+    <!-- button pressed -->
+    <item android:state_pressed="true" android:state_focused="false">
+        <shape >
+            <solid android:color="@color/darkred"/> </shape>
+    </item>
+</selector>

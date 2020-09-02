@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BSW_FirstTask</string>
+
+    <string name="splash_screen">شاشة البداية</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">مرحبا جزء فارغ</string>
+    <string name="game_over">انتهت اللعبة</string>
+    <string name="score">أحرز هدفا</string>
+    <string name="_124">124</string>
+    <string name="return_to_main_menu">عودة إلى القائمة الرئيسية</string>
+    <string name="replay">إعادة</string>
+    <string name="best">الأفضل</string>
+    <string name="tap_the_grey_color">اضغط على اللون الرمادي</string>
+    <string name="change_language">تغيير اللغة</string>
+    <string name="save_game">هل تريد حفظ هذه اللعبة؟</string>
+    <string name="continue_game">هل تريد الاستمرار في اللعبة المحفوظة؟</string>
+    <string name="yes">نعم</string>
+    <string name="no">لا</string>
+</resources>
