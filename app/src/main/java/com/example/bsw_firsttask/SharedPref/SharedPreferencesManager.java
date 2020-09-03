@@ -21,7 +21,8 @@ public class SharedPreferencesManager {
     private static final String LOCALE = "locale";
     private static final String IS_REPLAYED = "isReplayed";
     private static final String REPLAY_GAME_SCORE = "replay_game_score";
-
+    private static final String IS_STATE_SAVED = "state_saved";
+    private static final String STATE_SCORE = "state_score";
 
     private SharedPreferencesManager() {}
 
@@ -42,11 +43,11 @@ public class SharedPreferencesManager {
     public String getLocale(){
         return sharedPreferences.getString(LOCALE,"en");
     }
-    public int getSomeStringValue() {
+    public int getBestScore() {
         return sharedPreferences.getInt(KEY_BEST , 0);
     }
 
-    public  void setSomeStringValue(int newValue) {
+    public  void setBestScore(int newValue) {
         editor.putInt(KEY_BEST , newValue);
         editor.commit();
     }
@@ -63,6 +64,20 @@ public class SharedPreferencesManager {
         editor.commit();
     }
 
+    public void saveStateScore(int score){
+
+        editor.putInt(STATE_SCORE,score);
+        editor.putBoolean(IS_STATE_SAVED,true);
+        editor.commit();
+    }
+
+    public int getStateScore(){
+
+        return sharedPreferences.getInt(STATE_SCORE,0);
+    }
+    public boolean checkStateSaved(){
+        return sharedPreferences.getBoolean(IS_STATE_SAVED,false);
+    }
     public int getReplayScore(){
         return sharedPreferences.getInt(REPLAY_GAME_SCORE,-1);
     }

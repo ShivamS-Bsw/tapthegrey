@@ -1,16 +1,14 @@
 package com.example.bsw_firsttask.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -18,7 +16,6 @@ import android.view.WindowManager;
 import com.example.bsw_firsttask.AdMobHandler;
 import com.example.bsw_firsttask.BuildConfig;
 import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
-import com.example.bsw_firsttask.Callbacks.RewardedAdLoadCallbacks;
 import com.example.bsw_firsttask.Factory.Constants;
 import com.example.bsw_firsttask.FactoryClass;
 import com.example.bsw_firsttask.Fragments.GameOverScreen;
@@ -28,7 +25,6 @@ import com.example.bsw_firsttask.Fragments.SplashScreen;
 import com.example.bsw_firsttask.NetworkReceiver;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
-import com.google.android.ads.mediationtestsuite.MediationTestSuite;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -53,32 +49,51 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fragmentClass = new SplashScreen();
-        preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
-        initializeAdmMod();
+        // Getting the destroyed instance back
+        if(savedInstanceState != null){
+            showLogs("Saved Instance State not null" + savedInstanceState);
+            fragmentClass = getSupportFragmentManager().getFragment(savedInstanceState,"saved_fragment");
+        }else{
+            fragmentClass = new SplashScreen();
+        }
 
-        exitInterstitialAdCallback = this;
-        adMobHandler = AdMobHandler.getInstance(this);
-
-        adMobHandler.setExitInterstitialAdCallback(exitInterstitialAdCallback);
-
-        connectivityReceiverListener = this;
-        networkReceiver = new NetworkReceiver();
-        networkReceiver.setConnectivityReceiverListener(connectivityReceiverListener);
-
-        adMobHandler.initClass();
-
+        initClasses();
+      //  initializeAdmMod();
         loadFragment(fragmentClass);
 
         if(BuildConfig.FLAVOR.equals("paid"))
             loadLocale();
     }
 
+    private void initClasses() {
+        preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
+//      adMobHandler = AdMobHandler.getInstance(this);
+
+  //      exitInterstitialAdCallback = this;
+//
+//        adMobHandler.setExitInterstitialAdCallback(exitInterstitialAdCallback);
+//
+//        connectivityReceiverListener = this;
+//        networkReceiver = new NetworkReceiver();
+//        networkReceiver.setConnectivityReceiverListener(connectivityReceiverListener);
+//
+//        adMobHandler.initClass();
+//
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        showLogs("Saved Instance called");
+        //Function get called whenever OS kills the app in order to reclaim the memory
+        if(getSupportFragmentManager() != null)
+            getSupportFragmentManager().putFragment(outState,"saved_fragment",getSupportFragmentManager().findFragmentById(R.id.frame_container));
+    }
 
     private void initializeAdmMod() {
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
-
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
                 isAdMobInit = true;
@@ -94,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         hideNavigationAndStatusBar(decorView);
         hideNavigationAndStatusBarListener(decorView);
 
-        this.registerReceiver(networkReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+       // this.registerReceiver(networkReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
     }
 
@@ -102,10 +117,10 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     protected void onPause() {
         super.onPause();
 
-        unregisterReceiver(networkReceiver);
+        //unregisterReceiver(networkReceiver);
     }
 
-    // Method to Hide and Show the Navigation and Status Bar Listener
+  //   Method to Hide and Show the Navigation and Status Bar Listener
     private void hideNavigationAndStatusBarListener(final View decorView){
 
         decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
@@ -142,15 +157,15 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         // load fragment
         fragmentManager  = getSupportFragmentManager();
 
-
-        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-
-                Fragment fragment1 = fragmentManager.findFragmentById(R.id.frame_container);
-                Log.i(TAG,fragment1.getClass().getSimpleName() + "  " + fragmentManager.getBackStackEntryCount());
-            }
-        });
+        //For Debugging
+//        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+//            @Override
+//            public void onBackStackChanged() {
+//
+//                Fragment fragment1 = fragmentManager.findFragmentById(R.id.frame_container);
+//                Log.i(TAG,fragment1.getClass().getSimpleName() + "  " + fragmentManager.getBackStackEntryCount());
+//            }
+//        });
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.frame_container, fragment);
@@ -165,27 +180,28 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         if (fragment instanceof HomeScreen || fragment instanceof SplashScreen){
 
+//            if(adMobHandler.isExitInterstitialLoaded()) {
+//
+//                HomeScreen.showLoader();
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        // Show the add after 500ms of loading
+//                        adMobHandler.showExitIntAd();
+//                    }
+//                },500);
+//
+//            }
+//            else {
+//                finishActivity();
+//            }
 
-            if(adMobHandler.isExitInterstitialLoaded()) {
-
-                HomeScreen.showLoader();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        // Show the add after 500ms of loading
-                        adMobHandler.showExitIntAd();
-                    }
-                },500);
-
-            }
-            else {
-                finishActivity();
-            }
+            finishActivity();
         }
         else if(fragment instanceof GameScreen){
 
-            ((GameScreen) fragment).stopHandler();
+            ((GameScreen) fragment).showDialog();
         }
         else if(fragment instanceof GameOverScreen){
 

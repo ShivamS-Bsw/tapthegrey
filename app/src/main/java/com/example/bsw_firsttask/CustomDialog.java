@@ -42,7 +42,10 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     private LinearLayout linearLayout;
     private UnifiedNativeAd unifiedNativeAd;
     private AdMobHandler adMobHandler;
+    private static final String TAG = CustomDialog.class.getSimpleName();
     private NativeAdCallback nativeAdCallback;
+    private DialogLifecycleListener lifecycleListener;
+
 
     public CustomDialog() {
     }
@@ -180,30 +183,56 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     public void onResume() {
         super.onResume();
 
-        getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
-            @Override
-            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+        if(lifecycleListener != null)
+            lifecycleListener.OnDialogResume();
 
-                if (keyCode == KeyEvent.KEYCODE_BACK) {
+        showLogs("On Resume");
 
-                    // check for TARGET FRAGMENT = GAME SCREEN
-                    if(getTargetFragment() instanceof GameScreen){
+//        getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
+//            @Override
+//            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+//
+//                if (keyCode == KeyEvent.KEYCODE_BACK) {
+//
+//                    // check for TARGET FRAGMENT = GAME SCREEN
+//                    if(getTargetFragment() instanceof GameScreen){
+//
+//                        Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
+//
+//                        ((GameScreen) getTargetFragment()).restartHandler();
+//                        dialog.dismiss();
+//
+//                    }else if(getTargetFragment() instanceof HomeScreen){
+//
+//                        dialog.dismiss();
+//                    }
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
 
-                        Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
+    }
 
-                        ((GameScreen) getTargetFragment()).restartHandler();
-                        dialog.dismiss();
+    @Override
+    public void onPause() {
+        super.onPause();
 
-                    }else if(getTargetFragment() instanceof HomeScreen){
+        if(lifecycleListener != null)
+            lifecycleListener.OnDialogPause();
 
-                        dialog.dismiss();
-                    }
-                    return true;
-                }
-                return false;
-            }
-        });
+        showLogs("On Pause");
+    }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        showLogs("On Stop");
+    }
+
+    private void showLogs(String msg) {
+        Log.d(TAG,msg);
     }
 
     @Override
@@ -213,6 +242,7 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         try {
 
             listener = (DialogListener) getTargetFragment();
+            lifecycleListener = (DialogLifecycleListener) getTargetFragment();
 
         }catch (ClassCastException e){
             System.out.print(e.getMessage());
@@ -259,4 +289,9 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         void close();
     }
 
+    public interface DialogLifecycleListener{
+
+        void OnDialogResume();
+        void OnDialogPause();
+    }
 }

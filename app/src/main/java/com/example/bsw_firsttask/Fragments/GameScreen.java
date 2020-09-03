@@ -1,12 +1,9 @@
 package com.example.bsw_firsttask.Fragments;
 
-import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.media.MediaPlayer;
-import android.media.Rating;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -15,32 +12,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
-import com.example.bsw_firsttask.Activity.MainActivity;
-import com.example.bsw_firsttask.AdMobHandler;
-import com.example.bsw_firsttask.Callbacks.HomeInterstitialAdCallback;
 import com.example.bsw_firsttask.CustomDialog;
 import com.example.bsw_firsttask.Factory.Constants;
 import com.example.bsw_firsttask.FactoryClass;
-import com.example.bsw_firsttask.NetworkReceiver;
+import com.example.bsw_firsttask.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 
 
+import java.security.Key;
+import java.util.List;
 import java.util.Random;
 
 // no on pause onStop Override? when you stop your Handler?
-public class GameScreen extends Fragment implements View.OnClickListener , CustomDialog.DialogListener {
+public class GameScreen extends Fragment implements View.OnClickListener , CustomDialog.DialogListener , CustomDialog.DialogLifecycleListener {
 
     public static final String TAG = GameScreen.class.getSimpleName();
     private TextView scoreTextView;
@@ -49,10 +41,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private int currentButton, lastButton;
     private Handler handler;
     private boolean mStopHandler;
-
-    private MediaPlayer mMediaPlayer;
-    private MediaPlayer mMediaPlayerFail;
     private boolean isButtonClicked;
+    private MediaHandler mediaHandler;
     private SharedPreferencesManager preferencesManager;
 
     private Context context;
@@ -76,15 +66,35 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_screen,container,false);
-        preferencesManager = SharedPreferencesManager.getInstance(getContext());
+
         initViews(view);
 
         Log.i(TAG,"On Create");
+        return view;
+    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        initClasses();
+        scoreCount = 0;
+
+        //Get the score count if the fragment is destroyed and recreated
+        if(savedInstanceState != null){
+            scoreCount = savedInstanceState.getInt(Constants.STATE_SCORE);
+        }
 
         isButtonClicked = true;
         allowButtonCLick = false;
-        scoreCount =  0;
+
+
+        setButtonListeners();
+
+        lastButton = rand.nextInt(4)+1;
+        mStopHandler = false;
+        context = getContext();
+
 
         if(preferencesManager.checkSavedGame())
             scoreCount = preferencesManager.getSavedScore();
@@ -93,40 +103,35 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
             //Get the replay score and set the score count to replay score
             scoreCount = preferencesManager.getReplayScore();
-            Log.d(TAG,"Game Replayed" + scoreCount);
 
             //Clear the current replay score
             preferencesManager.clearReplayGame();
         }
-
         scoreTextView.setText(String.valueOf(scoreCount));
-        return view;
+
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+    private void initClasses(){
 
-        Log.i(TAG,"On Activity Created");
-
-        mMediaPlayerFail = MediaPlayer.create(getContext(), R.raw.fail);
+        mediaHandler = MediaHandler.getInstance(getContext());
+        preferencesManager = SharedPreferencesManager.getInstance(getContext());
         handler = new Handler();
         rand = new Random();
 
-        lastButton = rand.nextInt(4)+1;
-
+    }
+    private void setButtonListeners() {
         button1.setOnClickListener(this);
-
         button2.setOnClickListener(this);
-
         button3.setOnClickListener(this);
-
         button4.setOnClickListener(this);
+    }
+    private void initViews(View view){
 
-        mStopHandler = false;
-
-        context = getContext();
-        startHandler(Constants.TIME_IN_MILLISECONDS);
+        scoreTextView  = view.findViewById(R.id.score);
+        button1= view.findViewById(R.id.button00);
+        button2= view.findViewById(R.id.button01);
+        button3= view.findViewById(R.id.button10);
+        button4= view.findViewById(R.id.button11);
 
     }
 
@@ -136,19 +141,11 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             @Override
             public void run() {
 
-                startMatch();
+                if(getActivity() != null)
+                    startMatch();
+
             }
         }, delayTime);
-    }
-    private void initViews(View view){
-
-        scoreTextView  = view.findViewById(R.id.score);
-
-        button1= view.findViewById(R.id.button00);
-        button2= view.findViewById(R.id.button01);
-        button3= view.findViewById(R.id.button10);
-        button4= view.findViewById(R.id.button11);
-
     }
 
     /**
@@ -158,7 +155,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void startMatch(){
 
         Log.i(TAG,"Match Started");
-
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -172,10 +168,14 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                     return;
                 }
 
-                if(!mStopHandler && isAdded() ) {
+                if(!mStopHandler && getActivity() != null ) {
 
                     allowButtonCLick = true;
                     currentButton = rand.nextInt(4) + 1;
+
+                    // If previous and current box are same, then try for some other box
+                    if(currentButton == lastButton)
+                        currentButton = ((currentButton+1)%4 )== 0 ? 1 :(currentButton+1)%4;
 
                     switch (lastButton) {
                         case 1:
@@ -227,17 +227,16 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     private void gameOver(int currentScore){
 
-        mMediaPlayerFail.start();
+        mediaHandler.playOnGameOver();
 
         //Move to Game Over Screen and pass the params i.e current score
         Bundle args = new Bundle();
-        args.putString(Constants.CURRENT_SCORE,String.valueOf(currentScore));
+        args.putInt(Constants.CURRENT_SCORE,currentScore);
 
-        FactoryClass.moveToNextScreen(getActivity(),args,Constants.GAMEOVERCREEN_TAG);
+        if(getActivity() != null)
+            FactoryClass.moveToNextScreen(getActivity(),args,Constants.GAMEOVERCREEN_TAG);
 
     }
-
-
 
     @Override
     public void onClick(View v) {
@@ -246,50 +245,53 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
             boolean increment = checkButtonClick(v.getId(),currentButton);
             if (increment){
-
-                // pls create seprate sound class
-                if(mMediaPlayer != null)
-                {
-                    mMediaPlayer.stop();
-                    mMediaPlayer.release();
-                    mMediaPlayer = null;
-                }
-                mMediaPlayer = MediaPlayer.create(getContext(), R.raw.btn_sound);
-                mMediaPlayer.start();
-
+                mediaHandler.playOnButtonClick();
                 scoreCount++;
             }
-
             else{
 
                 gameOver(scoreCount);
                 scoreCount = 0;
                 mStopHandler = true;
-
                 return;
             }
 
             isButtonClicked = true;
             scoreTextView.setText(String.valueOf(scoreCount));
         }
-
         allowButtonCLick = false;
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
+
+        showLogs("On Resume Called");
+
+        // TODO:  Show the 2 timer to user and then start the match
+        resumeHandler();
+        startHandler(Constants.TIME_IN_MILLISECONDS);
+
     }
 
     @Override
     public void onPause() {
-        super.onPause();
-    }
 
+        super.onPause();
+
+        showLogs("On Pause Called");
+
+        //stop the game
+        pauseHandler();
+
+
+    }
     @Override
     public void onStop() {
         super.onStop();
 
+        showLogs("On Stop Called");
+        //this means fragment is not anymore visible
     }
 
     private boolean checkButtonClick(int buttonId, int currentButton){
@@ -310,16 +312,19 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             return false;
     }
 
-    public void stopHandler(){
+    public void pauseHandler(){
         mStopHandler = true;
-        showDialog();
     }
-    // from restart handler from custom dialog?
 
+    public void resumeHandler(){
+        mStopHandler = false;
+    }
+
+    // from restart handler from custom dialog?
     public void restartHandler(){
 
         mStopHandler = false;
-        startHandler(Constants.RESTART_TIME);
+        startHandler(Constants.TIME_IN_MILLISECONDS);
     }
 
 
@@ -328,8 +333,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         dialog = new CustomDialog(getContext(),R.string.save_game);
         dialog.setTargetFragment(GameScreen.this,1);
 
-        if(getFragmentManager() != null)
+        if(getFragmentManager() != null ){
             dialog.show(getFragmentManager(),"custom_dialog");
+        }
 
         dialog.setCancelable(false);
     }
@@ -338,65 +344,56 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     // Method is called when the system abruptly destroys the application. It is called just after onStop();
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-
-        outState.putInt(Constants.STATE_SCORE,scoreCount);
         super.onSaveInstanceState(outState);
 
-    }
+        outState.putInt(Constants.STATE_SCORE,scoreCount);
 
-    // Method is used to restore the saved instance. It is called just after onStart();
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-
-        if(savedInstanceState != null)
-            scoreCount = savedInstanceState.getInt(Constants.STATE_SCORE);
-
-        super.onViewStateRestored(savedInstanceState);
+//        // Not Sure about this need to ask
+//        if(preferencesManager != null)
+//            preferencesManager.saveStateScore(scoreCount);
 
     }
+
 
     // Dialogs positive and negative click methods
     @Override
     public void positive() {
 
         // 1. Save the score in shared preference and set the saved flag to YES
-        preferencesManager.saveGame(scoreCount);
+
+        if(preferencesManager != null)
+            preferencesManager.saveGame(scoreCount);
         //2. Move to Home Screen
+        moveToHomeScreen();
+    }
 
-        if(getFragmentManager().getBackStackEntryCount() < 2){
-            FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
-        }
-        else {
-            // Don't save the match and move to home screen
+    private void moveToHomeScreen(){
+
+        if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen){
             FactoryClass.moveToPreviousScreen(getFragmentManager(),-1);
-        }
+        }else{
 
+            if(getActivity() != null)
+                FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
+        }
     }
 
     @Override
     public void negative() {
 
         //Clear the saved game
-        preferencesManager.clearSavedGame();
 
-        if(getFragmentManager().getBackStackEntryCount()< 2 ){
+        if(preferencesManager != null)
+            preferencesManager.clearSavedGame();
 
-            FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
-        }
-        else {
-            // Don't save the match and move to home screen
-            FactoryClass.moveToPreviousScreen(getFragmentManager(),-1);
-        }
-
+        moveToHomeScreen();
     }
 
     @Override
     public void close() {
 
         Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
-
         dialog.dismiss();
-        restartHandler();
 
     }
     private void automateGame(int currentButton){
@@ -406,6 +403,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         }
     }
 
+    private void showLogs(String msg){
+        Log.d(TAG,msg);
+    }
     private void performClick(int currentButton){
 
         switch (currentButton){
@@ -419,5 +419,40 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             case 4: button4.performClick();
                 break;
         }
+    }
+
+
+    // Override Dialog Lifecycle Methods
+    @Override
+    public void OnDialogResume() {
+
+        showLogs("On Dialog Resume");
+        if(getActivity() != null){
+            pauseHandler();
+        }
+
+        if(dialog != null)
+            dialog.getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+
+                    if(keyCode == KeyEvent.KEYCODE_BACK){
+
+                        Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
+                        dialog.dismiss();
+
+                        return true;
+                    }
+
+                    return false;
+                }
+            });
+    }
+
+    @Override
+    public void OnDialogPause() {
+        showLogs("on Dialog Paused");
+        if(getActivity() != null)
+            restartHandler();
     }
 }

@@ -24,9 +24,12 @@ public class FactoryClass {
 
             FragmentManager fragmentManager = activity.getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
             fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,android.R.anim.fade_out,android.R.anim.fade_in,android.R.anim.fade_out);
             fragment.setArguments(args);
+
             fragment.setRetainInstance(true);
+
             fragmentTransaction.replace(R.id.frame_container, fragment,fragmentTag);
             fragmentTransaction.addToBackStack(fragmentTag);
 
@@ -56,7 +59,6 @@ public class FactoryClass {
     public static void moveToPreviousScreen(FragmentManager fragmentManager,int id){
 
         if(fragmentManager != null){
-
             if(id == -1)
                 fragmentManager.popBackStack();
             else

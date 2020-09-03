@@ -2,11 +2,7 @@ package com.example.bsw_firsttask.Fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.TestLooperManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,8 +11,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,17 +18,11 @@ import androidx.fragment.app.Fragment;
 
 import com.example.bsw_firsttask.Activity.MainActivity;
 import com.example.bsw_firsttask.AdMobHandler;
-import com.example.bsw_firsttask.Callbacks.HomeInterstitialAdCallback;
 import com.example.bsw_firsttask.CustomDialog;
 import com.example.bsw_firsttask.Factory.Constants;
 import com.example.bsw_firsttask.FactoryClass;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
-import com.google.android.ads.mediationtestsuite.MediationTestSuite;
-
-
-import java.util.Locale;
-import java.util.function.Function;
 
 public class HomeScreen extends Fragment implements CustomDialog.DialogListener {
 
@@ -54,26 +42,27 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home,container,false);
 
-        adMobHandler = AdMobHandler.getInstance(getActivity());
-        adMobHandler.loadAdView();
+//        adMobHandler = AdMobHandler.getInstance(getActivity());
+//        adMobHandler.loadAdView();
 
 
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
+        scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
 
         initView(view);
 
-//        new Handler().postDelayed(new Runnable() {
+//        new Handle1r().postDelayed(new Runnable() {
 //            @Override
 //            public void run() {
 //                automateScreen();
 //            }
 //        },3000);
 
-
         return view;
     }
 
     private void continueGame(){
+
         // 1. Check whether any saved game is there or not
         // 2. if yes, then show a  dialog (Continue with the saved game? YES/NO)
         // 2.1 - YES// Start the saved game
@@ -102,7 +91,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public static void showLoader(){
 
         if(progressLoader!=null)
-        progressLoader.setVisibility(View.VISIBLE);
+            progressLoader.setVisibility(View.VISIBLE);
     }
     public static void hideLoader(){
 
@@ -117,7 +106,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 continueGame();
             }
         });
@@ -125,7 +113,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         locale.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 showChangeLanguageDialog();
             }
         });
@@ -134,9 +121,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     @Override
     public void onResume() {
 
-        scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
         playButton.setAnimation(scaleAnimation);
-
         super.onResume();
     }
 
@@ -144,7 +129,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public void onPause() {
         super.onPause();
 
-        if(progressLoader.getVisibility() == View.VISIBLE)
+        if(progressLoader.getVisibility() == View.VISIBLE && getActivity() != null)
             getActivity().overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
     }
 
@@ -169,8 +154,8 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
 
     private void newGame(){
 
-        FactoryClass.moveToNextScreen(getActivity(),null,Constants.GAMESCREEN_TAG);
-
+        if(getActivity() != null)
+            FactoryClass.moveToNextScreen(getActivity(),null,Constants.GAMESCREEN_TAG);
     }
 
     private void showChangeLanguageDialog(){
@@ -194,7 +179,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
                     ((MainActivity)getActivity()).setLocale("ar");
                 }
 
-                if(getFragmentManager()!=null)
+                if(getFragmentManager()!=null && getActivity() != null)
                     getFragmentManager().beginTransaction().detach(HomeScreen.this).attach(HomeScreen.this).commit();
 
                 dialog.dismiss();
@@ -224,7 +209,8 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public void positive() {
 
         // Continue with the saved game and pass the score.
-        FactoryClass.moveToNextScreen(getActivity(),null,Constants.GAMESCREEN_TAG);
+        if(getActivity() != null)
+            FactoryClass.moveToNextScreen(getActivity(),null,Constants.GAMESCREEN_TAG);
 
     }
 
@@ -232,8 +218,10 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public void negative() {
 
         //Clear the Shared Preference and start the new game
-        preferencesManager.clearSavedGame();
-                                newGame();
+        if(preferencesManager != null && getActivity() != null )
+            preferencesManager.clearSavedGame();
+
+        newGame();
     }
 
     @Override

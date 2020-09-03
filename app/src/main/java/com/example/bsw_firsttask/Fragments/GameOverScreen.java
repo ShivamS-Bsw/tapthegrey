@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,13 +17,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.bsw_firsttask.Activity.MainActivity;
 import com.example.bsw_firsttask.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
 import com.example.bsw_firsttask.Callbacks.RewardedAdLoadCallbacks;
-import com.example.bsw_firsttask.CustomDialog;
 import com.example.bsw_firsttask.Factory.Constants;
 import com.example.bsw_firsttask.FactoryClass;
+import com.example.bsw_firsttask.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.AdError;
@@ -33,7 +30,7 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 
 public class GameOverScreen extends Fragment implements View.OnClickListener,RewardAdCallbacks,RewardedAdLoadCallbacks {
 
-    private MediaPlayer mMediaPlayer;
+    private MediaHandler mediaHandler;
     public static final String TAG = GameOverScreen.class.getSimpleName();
     private TextView points,best;
     private Button replay,home;
@@ -42,9 +39,9 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private RewardAdCallbacks rewardedAdCallback;
     private RewardedAdLoadCallbacks loadCallbacks;
     private boolean isAdClosed ;
-    private boolean isReplayPressed;
+    private boolean isRewardAdRequested;
     private RewardItem rewardItem;
-    private String currentScore;
+    private int currentScore;
 
     private FrameLayout progressBar;
     public GameOverScreen(){
@@ -56,48 +53,40 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_over,container,false);
 
-        sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
-
-        //Clear the saved game
-        if(sharedPreferencesManager.checkSavedGame())
-            sharedPreferencesManager.clearSavedGame();
-
-        sharedPreferencesManager.clearReplayGame();
-
         initViews(view);
-
-        currentScore = getArguments().getString(Constants.CURRENT_SCORE);
-        points.setText(String.valueOf(currentScore));
-
-
-        if(Integer.parseInt(currentScore) >= sharedPreferencesManager.getSomeStringValue()){
-
-            sharedPreferencesManager.setSomeStringValue(Integer.parseInt(currentScore));
-            best.setText(String.valueOf(sharedPreferencesManager.getSomeStringValue()));
-
-        }
-
-        adMobHandler = AdMobHandler.getInstance(getActivity());
-        adMobHandler.setRewardedAdCallback(rewardedAdCallback);
-        adMobHandler.setRewardedAdLoadCallback(loadCallbacks);
-
-
         return view;
+    }
+
+    private void initClasses(){
+
+        sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
+        mediaHandler = MediaHandler.getInstance(getContext());
+//        adMobHandler = AdMobHandler.getInstance(getActivity());
+//        adMobHandler.setRewardedAdCallback(rewardedAdCallback);
+//        adMobHandler.setRewardedAdLoadCallback(loadCallbacks);
+    }
+
+    private void initListeners(){
+
+        if(replay != null)
+            replay.setOnClickListener(this);
+        if(home != null)
+            home.setOnClickListener(this);
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-
-        try {
-
-            rewardedAdCallback = this;
-            loadCallbacks = this;
-
-        }catch (ClassCastException e){
-            System.out.print(e.getMessage());
-        }
+//
+//        try {
+//
+//            rewardedAdCallback = this;
+//            loadCallbacks = this;
+//
+//        }catch (ClassCastException e){
+//            System.out.print(e.getMessage());
+//        }
 
     }
 
@@ -110,14 +99,12 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         super.onDetach();
     }
 
-    public void initViews(View v) {
+    private void initViews(View v) {
 
         isAdClosed = false;
-        isReplayPressed = false;
+        isRewardAdRequested = false;
 
         best = v.findViewById(R.id.best);
-        best.setText(String.valueOf(sharedPreferencesManager.getSomeStringValue()));
-
         points = v.findViewById(R.id.points);
         replay = v.findViewById(R.id.replay_btn);
         home = v.findViewById(R.id.home_btn);
@@ -128,40 +115,84 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mMediaPlayer = MediaPlayer.create(getContext(), R.raw.btn_sound);
-        replay.setOnClickListener(this);
-        home.setOnClickListener(this);
+        initClasses();
+        initListeners();
+
+        best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
+        currentScore = getArguments().getInt(Constants.CURRENT_SCORE,-1);
+
+        if(savedInstanceState != null)
+            currentScore = savedInstanceState.getInt(Constants.STATE_SCORE);
+
+
+        clearSavedScore();
+        clearReplayScore();
+
+        points.setText(String.valueOf(currentScore));
+
+        if(currentScore >= sharedPreferencesManager.getBestScore()){
+
+            sharedPreferencesManager.setBestScore(currentScore);
+            best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
+
+        }
+
+    }
+
+    private void clearReplayScore() {
+
+        //Clear the replay game
+        if(sharedPreferencesManager != null  && sharedPreferencesManager.checkIsReplayed())
+            sharedPreferencesManager.clearReplayGame();
+
+    }
+    private void clearSavedScore(){
+        //Clear the saved game
+        if(sharedPreferencesManager != null && sharedPreferencesManager.checkSavedGame())
+            sharedPreferencesManager.clearSavedGame();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        showLogs("On Saved Instance called");
+
+        outState.putInt(Constants.STATE_SCORE,currentScore);
+
+//        if(sharedPreferencesManager != null)
+//            sharedPreferencesManager.saveStateScore(currentScore);
     }
 
     @Override
     public void onClick(View v) {
 
-        mMediaPlayer.start();
+        mediaHandler.playOnButtonClick();
 
         if(v.getId() == R.id.replay_btn){
 
-            isReplayPressed = true;
-
             rewardItem = null;
 
-            if(adMobHandler.isRewardedLoaded()){
+//            if(adMobHandler.isRewardedLoaded()){
+//
+//                isRewardAdRequested = true;
+//                showProgressIndi();
+//
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        // no null check? even you in callback with delay.
+//                        adMobHandler.showRewardedAd();
+//
+//                    }
+//                },500);
+//
+//            }else{
+//                returnToGameScreen();
+//            }
 
-                showProgressIndi();
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        // no null check? even you in callback with delay.
-                        adMobHandler.showRewardedAd();
-
-                    }
-                },500);
-
-            }else{
-                returnToGameScreen();
-            }
-
+            returnToGameScreen();
         }else if(v.getId() == R.id.home_btn ){
                 returnToHomeMenu(); }
     }
@@ -176,11 +207,13 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
      */
     private void returnToHomeMenu(){
 
-        if(getFragmentManager().getBackStackEntryCount() == 2){
-            FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
-        } else if (getFragmentManager().getBackStackEntryCount() > 2){
-            // Intent to Home Screen frm this screen
+        showLogs("Return to Home Menu");
+        if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen){
             FactoryClass.moveToPreviousScreen(getFragmentManager(),0);
+        }else{
+
+            if(getActivity() != null)
+                FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
         }
     }
 
@@ -210,7 +243,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         if(rewardItem != null){
 
-            sharedPreferencesManager.saveReplay(Integer.parseInt(currentScore));
+            sharedPreferencesManager.saveReplay(currentScore);
             returnToGameScreen();
         }
         else
@@ -243,7 +276,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         showLogs("on Failed to Load");
 
-        if(isReplayPressed){
+        if(isRewardAdRequested){
 
             hideProgressIndi();
             returnToGameScreen();
@@ -260,11 +293,11 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     public void onPause() {
         super.onPause();
 
-        if(isReplayPressed){
-
-            showLogs("On Pause Called");
-            getActivity().overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
-        }
+//        if(isRewardAdRequested){
+//
+//            showLogs("On Pause Called");
+//            getActivity().overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
+//        }
 
     }
 
