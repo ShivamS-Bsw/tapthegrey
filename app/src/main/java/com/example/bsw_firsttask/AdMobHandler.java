@@ -43,6 +43,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 import java.lang.ref.WeakReference;
 
+// where you pause & resume your banner ads.
 public class AdMobHandler {
 
     private static AdMobHandler adMobHandler;
@@ -208,6 +209,9 @@ public class AdMobHandler {
         }
     }
 
+    /**
+     * you only remove callwhen  i only click on ad what if i leave the screen.
+     */
     Runnable nativeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -215,6 +219,10 @@ public class AdMobHandler {
                  adLoader.loadAd(new AdRequest.Builder().build());
         }
     };
+
+    /**
+     * when you again try to send request if you alredy show reward ads?
+     */
 
     public void initRewardedAd(){
 
@@ -327,6 +335,7 @@ public class AdMobHandler {
         }
         return true;
     }
+    // What if reward ad "rewardedAd.isLoaded()" is not loaded?
     public void showRewardedAd(){
 
         Activity activityContext = getActivityRef();

@@ -152,6 +152,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
                     @Override
                     public void run() {
 
+                        // no null check? even you in callback with delay.
                         adMobHandler.showRewardedAd();
 
                     }
@@ -169,6 +170,10 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         // Intent to Game Screen from this screen
         FactoryClass.moveToPreviousScreen(getFragmentManager(),-1);
     }
+
+    /**
+     * what if we add more screen in between for that you will change the count?
+     */
     private void returnToHomeMenu(){
 
         if(getFragmentManager().getBackStackEntryCount() == 2){
