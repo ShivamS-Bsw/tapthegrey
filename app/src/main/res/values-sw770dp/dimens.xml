@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_box">18.3dp</dimen>
+    <dimen name="divider_height">1.8dp</dimen>
+    <dimen name="dimen_24dp">44dp</dimen>
+    <dimen name="text_36sp">66sp</dimen>
+    <dimen name="dimen_48dp">88dp</dimen>
+    <dimen name="dimen_16dp">29.3dp</dimen>
+    <dimen name="text_32sp">58.7sp</dimen>
+    <dimen name="text_28sp">51.3sp</dimen>
+    <dimen name="text_16sp">29.3sp</dimen>
+    <dimen name="text_24sp">44sp</dimen>
+    <dimen name="dimen_play_button_size">146.7dp</dimen>
+    <dimen name="text_12sp">22sp</dimen>
+    <dimen name="dimen_32dp">58.7dp</dimen>
+    <dimen name="dimen_8dp">14.7dp</dimen>
+    <dimen name="dimen_250dp">458.3dp</dimen>
+    <dimen name="dimen_130dp">238.3dp</dimen>
+</resources>

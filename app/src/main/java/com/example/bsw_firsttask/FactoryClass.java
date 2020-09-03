@@ -26,6 +26,7 @@ public class FactoryClass {
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,android.R.anim.fade_out,android.R.anim.fade_in,android.R.anim.fade_out);
             fragment.setArguments(args);
+            fragment.setRetainInstance(true);
             fragmentTransaction.replace(R.id.frame_container, fragment,fragmentTag);
             fragmentTransaction.addToBackStack(fragmentTag);
 

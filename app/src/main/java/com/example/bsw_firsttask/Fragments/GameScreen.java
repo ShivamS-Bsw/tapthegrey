@@ -49,7 +49,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private Handler handler;
     private boolean mStopHandler;
 
-
     private MediaPlayer mMediaPlayer;
     private MediaPlayer mMediaPlayerFail;
     private boolean isButtonClicked;
@@ -269,6 +268,22 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         allowButtonCLick = false;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+    }
+
     private boolean checkButtonClick(int buttonId, int currentButton){
 
         if(buttonId == R.id.button00 && currentButton == 1){
@@ -313,17 +328,21 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     // Method is called when the system abruptly destroys the application. It is called just after onStop();
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
+
         outState.putInt(Constants.STATE_SCORE,scoreCount);
         super.onSaveInstanceState(outState);
+
     }
 
     // Method is used to restore the saved instance. It is called just after onStart();
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+
+        if(savedInstanceState != null)
+            scoreCount = savedInstanceState.getInt(Constants.STATE_SCORE);
+
         super.onViewStateRestored(savedInstanceState);
 
-        if(savedInstanceState!=null)
-            scoreCount = savedInstanceState.getInt(Constants.STATE_SCORE);
     }
 
     // Dialogs positive and negative click methods
