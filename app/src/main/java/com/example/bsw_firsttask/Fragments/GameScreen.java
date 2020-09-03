@@ -39,6 +39,7 @@ import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 
 import java.util.Random;
 
+// no on pause onStop Override? when you stop your Handler?
 public class GameScreen extends Fragment implements View.OnClickListener , CustomDialog.DialogListener {
 
     public static final String TAG = GameScreen.class.getSimpleName();
@@ -150,6 +151,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     }
 
+    /**
+     * no null check in callback?
+     *
+     */
     private void startMatch(){
 
         Log.i(TAG,"Match Started");
@@ -232,6 +237,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     }
 
+
+
     @Override
     public void onClick(View v) {
 
@@ -240,6 +247,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             boolean increment = checkButtonClick(v.getId(),currentButton);
             if (increment){
 
+                // pls create seprate sound class
                 if(mMediaPlayer != null)
                 {
                     mMediaPlayer.stop();
@@ -306,6 +314,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         mStopHandler = true;
         showDialog();
     }
+    // from restart handler from custom dialog?
+
     public void restartHandler(){
 
         mStopHandler = false;

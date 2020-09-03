@@ -1,5 +1,7 @@
 package com.example.bsw_firsttask.Factory;
 
+// Constants class in Factory package?
+
 public class Constants {
 
     public static final int SPLASH_DELAY = 3000;
