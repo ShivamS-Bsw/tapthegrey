@@ -57,6 +57,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private int scoreCount;
     private boolean allowButtonCLick;
     private CustomDialog dialog;
+    private boolean dialogResumed = false;
 
     public GameScreen(){
 
@@ -153,8 +154,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
      *
      */
     private void startMatch(){
-
-        Log.i(TAG,"Match Started");
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
@@ -278,13 +277,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     public void onPause() {
 
         super.onPause();
-
         showLogs("On Pause Called");
 
-        //stop the game
         pauseHandler();
-
-
     }
     @Override
     public void onStop() {
@@ -292,6 +287,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         showLogs("On Stop Called");
         //this means fragment is not anymore visible
+        //stop the game
+
+        if(dialog != null && dialogResumed)
+            pauseHandler();
     }
 
     private boolean checkButtonClick(int buttonId, int currentButton){
@@ -334,6 +333,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         dialog.setTargetFragment(GameScreen.this,1);
 
         if(getFragmentManager() != null ){
+
+            dialogResumed = false;
             dialog.show(getFragmentManager(),"custom_dialog");
         }
 
@@ -425,6 +426,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     // Override Dialog Lifecycle Methods
     @Override
     public void OnDialogResume() {
+
+        dialogResumed = true;
 
         showLogs("On Dialog Resume");
         if(getActivity() != null){

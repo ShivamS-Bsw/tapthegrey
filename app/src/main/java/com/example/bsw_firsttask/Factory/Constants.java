@@ -4,7 +4,7 @@ package com.example.bsw_firsttask.Factory;
 
 public class Constants {
 
-    public static final int SPLASH_DELAY = 3000;
+    public static final int SPLASH_DELAY = 2000;
     public static final int TIME_IN_MILLISECONDS = 2000;
     public static final int RESTART_TIME = 1000;
     public static boolean gamePaused = false;
