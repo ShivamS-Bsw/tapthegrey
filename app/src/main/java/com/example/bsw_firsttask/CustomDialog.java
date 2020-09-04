@@ -63,15 +63,25 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
 
 
         initViews(view);
-        textView.setText(context.getResources().getText(dialogTitle));
-        positive.setText(getContext().getResources().getText(R.string.yes));
-        negative.setText(getContext().getResources().getText(R.string.no));
+
+        if(savedInstanceState != null){
+
+        }
+
+        if(context != null && getContext().getResources() != null){
+
+            textView.setText(context.getResources().getText(dialogTitle));
+            positive.setText(getContext().getResources().getText(R.string.yes));
+            negative.setText(getContext().getResources().getText(R.string.no));
+        }
+
         adMobHandler = AdMobHandler.getInstance(getActivity());
         adMobHandler.setNativeAdCallback(nativeAdCallback);
 
         getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
-        test();
+
+        //test();
 
         return view;
     }
@@ -162,19 +172,21 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     @Override
     public void onClick(View v) {
 
-        switch (v.getId()){
+        if(getActivity() != null && listener != null){
 
-            case R.id.dialog_button1:
-                listener.positive();
-                break;
-            case R.id.dialog_button2:
-                listener.negative();
-                break;
-            case R.id.close_dialog:
-                listener.close();
-                break;
+            switch (v.getId()){
+
+                case R.id.dialog_button1:
+                    listener.positive();
+                    break;
+                case R.id.dialog_button2:
+                    listener.negative();
+                    break;
+                case R.id.close_dialog:
+                    listener.close();
+                    break;
+            }
         }
-
         getDialog().dismiss();
 
     }
@@ -187,31 +199,6 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
             lifecycleListener.OnDialogResume();
 
         showLogs("On Resume");
-
-//        getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
-//            @Override
-//            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-//
-//                if (keyCode == KeyEvent.KEYCODE_BACK) {
-//
-//                    // check for TARGET FRAGMENT = GAME SCREEN
-//                    if(getTargetFragment() instanceof GameScreen){
-//
-//                        Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
-//
-//                        ((GameScreen) getTargetFragment()).restartHandler();
-//                        dialog.dismiss();
-//
-//                    }else if(getTargetFragment() instanceof HomeScreen){
-//
-//                        dialog.dismiss();
-//                    }
-//                    return true;
-//                }
-//                return false;
-//            }
-//        });
-
     }
 
     @Override
@@ -229,6 +216,16 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         super.onStop();
 
         showLogs("On Stop");
+    }
+
+    @Override
+    public void onDestroyView() {
+
+        Dialog d = getDialog();
+        if (d != null && getRetainInstance())
+            d.setDismissMessage(null);
+
+        super.onDestroyView();
     }
 
     private void showLogs(String msg) {

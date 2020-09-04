@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--why you are not created multple dimensoin file?-->
 <resources>
-    <dimen name="padding_box">14.3dp</dimen>
-    <dimen name="divider_height">1.4dp</dimen>
-    <dimen name="dimen_24dp">34.3dp</dimen>
-    <dimen name="text_36sp">51.4sp</dimen>
-    <dimen name="dimen_48dp">68.6dp</dimen>
-    <dimen name="dimen_16dp">22.9dp</dimen>
-    <dimen name="text_32sp">45.7sp</dimen>
-    <dimen name="text_28sp">40sp</dimen>
-    <dimen name="text_16sp">22.9sp</dimen>
-    <dimen name="text_24sp">34.3sp</dimen>
-    <dimen name="dimen_play_button_size">114.3dp</dimen>
-    <dimen name="text_12sp">17.1sp</dimen>
-    <dimen name="dimen_32dp">45.7dp</dimen>
-    <dimen name="dimen_8dp">11.4dp</dimen>
-    <dimen name="dimen_250dp">357.1dp</dimen>
-    <dimen name="dimen_130dp">185.7dp</dimen>
+    <dimen name="text_18sp">33.8sp</dimen>
+    <dimen name="dimen_8dp">15dp</dimen>
+    <dimen name="dimen_60dp">112.5dp</dimen>
+    <dimen name="text_12sp">22.5sp</dimen>
+    <dimen name="dimen_12dp">22.5dp</dimen>
+    <dimen name="dimen_6dp">11.3dp</dimen>
+    <dimen name="dimen_2dp">3.8dp</dimen>
+    <dimen name="dimen_4dp">7.5dp</dimen>
+    <dimen name="text_24sp">45sp</dimen>
+    <dimen name="dimen_1dp">1.9dp</dimen>
+    <dimen name="dimen_36dp">67.5dp</dimen>
+    <dimen name="dimen_16dp">30dp</dimen>
+    <dimen name="text_14sp">26.3sp</dimen>
+    <dimen name="dimen_28dp">52.5dp</dimen>
+    <dimen name="dimen_200dp">375dp</dimen>
+
 </resources>

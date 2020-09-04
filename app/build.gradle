@@ -53,5 +53,4 @@ dependencies {
     implementation 'com.google.ads.mediation:facebook:5.11.0.0'
 
     implementation 'com.google.android.ads:mediation-test-suite:1.4.0'
-    implementation project(path: ':nativetemplates')
 }

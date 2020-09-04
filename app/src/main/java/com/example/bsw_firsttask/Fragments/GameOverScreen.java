@@ -301,6 +301,10 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
 
     @Override
     public void onLoadCompleted() {

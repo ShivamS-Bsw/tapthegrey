@@ -3,6 +3,7 @@ package com.example.bsw_firsttask.Fragments;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,12 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
 //        adMobHandler = AdMobHandler.getInstance(getActivity());
 //        adMobHandler.loadAdView();
 
+        if(savedInstanceState != null){
+
+            showLogs("Instance Not Null");
+            if(getFragmentManager() != null)
+                dialog = (CustomDialog) getFragmentManager().getFragment(savedInstanceState,"dialog");
+        }
 
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
@@ -59,6 +66,20 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
 //        },3000);
 
         return view;
+    }
+
+    private void showLogs(String instance_not_null) {
+
+        Log.d(TAG,instance_not_null);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+//        if( dialog!= null && getActivity() != null && getFragmentManager() != null){
+//            getFragmentManager().putFragment(outState,"dialog",dialog);
+//        }
     }
 
     private void continueGame(){
@@ -149,6 +170,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         if(getFragmentManager() != null)
             dialog.show(getFragmentManager(),"custom_dialog");
 
+        dialog.setRetainInstance(true);
 
     }
 

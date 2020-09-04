@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--why you are not created multple dimensoin file?-->
+<resources>
+
+    <dimen name="text_18sp">40.5sp</dimen>
+    <dimen name="dimen_8dp">18dp</dimen>
+    <dimen name="dimen_60dp">135dp</dimen>
+    <dimen name="text_12sp">27sp</dimen>
+    <dimen name="dimen_12dp">27dp</dimen>
+    <dimen name="dimen_6dp">13.5dp</dimen>
+    <dimen name="dimen_2dp">4.5dp</dimen>
+    <dimen name="dimen_4dp">9dp</dimen>
+    <dimen name="text_24sp">54sp</dimen>
+    <dimen name="dimen_1dp">2.3dp</dimen>
+    <dimen name="dimen_36dp">81dp</dimen>
+    <dimen name="dimen_16dp">36dp</dimen>
+    <dimen name="text_14sp">31.5sp</dimen>
+    <dimen name="dimen_28dp">63dp</dimen>
+    <dimen name="dimen_200dp">450dp</dimen>
+
+</resources>

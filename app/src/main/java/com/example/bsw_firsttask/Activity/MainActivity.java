@@ -22,6 +22,7 @@ import com.example.bsw_firsttask.Fragments.GameOverScreen;
 import com.example.bsw_firsttask.Fragments.GameScreen;
 import com.example.bsw_firsttask.Fragments.HomeScreen;
 import com.example.bsw_firsttask.Fragments.SplashScreen;
+import com.example.bsw_firsttask.MediaHandler;
 import com.example.bsw_firsttask.NetworkReceiver;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         }else{
             fragmentClass = new SplashScreen();
         }
+
+        //TODO: Need to be updated;
 
         initClasses();
       //  initializeAdmMod();
@@ -105,6 +108,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     protected void onResume() {
 
         super.onResume();
+        MediaHandler.getInstance(this);
+
         View decorView = getWindow().getDecorView();
         hideNavigationAndStatusBar(decorView);
         hideNavigationAndStatusBarListener(decorView);
@@ -230,6 +235,10 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         preferencesManager.saveLocale(s);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 
     private void finishActivity(){
         MainActivity.this.finish();

@@ -5,10 +5,10 @@
         <shape >
             <solid android:color="@color/red" />
             <padding
-                android:left="@dimen/dimen_16dp"
-                android:right="@dimen/dimen_16dp"
-                android:top="@dimen/dimen_8dp"
-                android:bottom="@dimen/dimen_8dp" />
+                android:left="@dimen/dimen_12dp"
+                android:right="@dimen/dimen_12dp"
+                android:top="@dimen/dimen_6dp"
+                android:bottom="@dimen/dimen_6dp" />
         </shape>
     </item>
 

@@ -9,8 +9,8 @@
 
     <ImageButton
         android:id="@+id/btnPlay"
-        android:layout_width="@dimen/dimen_play_button_size"
-        android:layout_height="@dimen/dimen_play_button_size"
+        android:layout_width="@dimen/dimen_60dp"
+        android:layout_height="@dimen/dimen_60dp"
         android:layout_centerInParent="true"
         android:background="@null"
         android:scaleType="fitCenter"
@@ -26,7 +26,7 @@
         android:layout_height="wrap_content"
         android:text="@string/tap_the_grey_color"
         android:textColor="@color/white"
-        android:textSize="@dimen/text_24sp"
+        android:textSize="@dimen/text_18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,14 +39,13 @@
         android:layout_height="wrap_content"
         android:background="@drawable/replay_button"
         android:text="@string/change_language"
-        android:textSize="@dimen/text_16sp"
+        android:textSize="@dimen/text_12sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="@dimen/padding_box"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.62" />
-
+        app:layout_constraintVertical_bias="0.65" />
     <FrameLayout
         android:id="@+id/progress_indicator_homescreen"
         android:layout_width="0dp"
