@@ -1,11 +1,12 @@
-package com.example.bsw_firsttask;
+package com.example.bsw_firsttask.Media;
 
 import android.content.Context;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.Build;
+
+import com.example.bsw_firsttask.R;
 
 public class MediaHandler {
 
@@ -17,7 +18,8 @@ public class MediaHandler {
 
         if (mediaHandler == null) {
             mediaHandler = new MediaHandler();
-        }else if(soundPool == null) {
+        }
+        if(soundPool == null) {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 AudioAttributes audioAttributes = new AudioAttributes.Builder()
@@ -33,7 +35,7 @@ public class MediaHandler {
                 soundPool = new SoundPool(2, AudioManager.STREAM_MUSIC, 0);
             }
 
-            sound1 = soundPool.load(context,R.raw.btn_sound,1);
+            sound1 = soundPool.load(context, R.raw.btn_sound,1);
             sound2 = soundPool.load(context,R.raw.fail,1);
         }
         return mediaHandler;

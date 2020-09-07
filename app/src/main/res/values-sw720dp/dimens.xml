@@ -5,6 +5,7 @@
     <dimen name="text_18sp">40.5sp</dimen>
     <dimen name="dimen_8dp">18dp</dimen>
     <dimen name="dimen_60dp">135dp</dimen>
+    <dimen name="marginTop">145dp</dimen>
     <dimen name="text_12sp">27sp</dimen>
     <dimen name="dimen_12dp">27dp</dimen>
     <dimen name="dimen_6dp">13.5dp</dimen>

@@ -1,9 +1,7 @@
 package com.example.bsw_firsttask.Fragments;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,12 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.bsw_firsttask.AdMobHandler;
+import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
 import com.example.bsw_firsttask.Callbacks.RewardedAdLoadCallbacks;
-import com.example.bsw_firsttask.Factory.Constants;
-import com.example.bsw_firsttask.FactoryClass;
-import com.example.bsw_firsttask.MediaHandler;
+import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.AdError;
@@ -199,7 +197,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     private void returnToGameScreen(){
         // Intent to Game Screen from this screen
-        FactoryClass.moveToPreviousScreen(getFragmentManager(),-1);
+        FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
     }
 
     /**
@@ -208,13 +206,12 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private void returnToHomeMenu(){
 
         showLogs("Return to Home Menu");
-        if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen){
-            FactoryClass.moveToPreviousScreen(getFragmentManager(),0);
-        }else{
 
-            if(getActivity() != null)
-                FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
-        }
+        if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen)
+            FactoryClass.moveToPreviousScreen(getFragmentManager(),Constants.HOMESCREEN_TAG);
+
+        else if(getActivity() != null)
+            FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
     }
 
     private void hideProgressIndi(){
@@ -308,6 +305,5 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     @Override
     public void onLoadCompleted() {
-
     }
 }

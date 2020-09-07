@@ -13,17 +13,17 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
-import com.example.bsw_firsttask.AdMobHandler;
+import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.BuildConfig;
 import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
-import com.example.bsw_firsttask.Factory.Constants;
-import com.example.bsw_firsttask.FactoryClass;
+import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.Factory.FactoryClass;
 import com.example.bsw_firsttask.Fragments.GameOverScreen;
 import com.example.bsw_firsttask.Fragments.GameScreen;
 import com.example.bsw_firsttask.Fragments.HomeScreen;
 import com.example.bsw_firsttask.Fragments.SplashScreen;
-import com.example.bsw_firsttask.MediaHandler;
-import com.example.bsw_firsttask.NetworkReceiver;
+import com.example.bsw_firsttask.Media.MediaHandler;
+import com.example.bsw_firsttask.Receiver.NetworkReceiver;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.MobileAds;
@@ -34,8 +34,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements ExitInterstitialAdCallback,NetworkReceiver.ConnectivityReceiverListener {
 
-    private Fragment fragmentClass;
-    private FragmentManager fragmentManager;
     public static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferencesManager preferencesManager;
     private AdMobHandler adMobHandler;
@@ -50,19 +48,17 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Getting the destroyed instance back
-        if(savedInstanceState != null){
-            showLogs("Saved Instance State not null" + savedInstanceState);
-            fragmentClass = getSupportFragmentManager().getFragment(savedInstanceState,"saved_fragment");
-        }else{
-            fragmentClass = new SplashScreen();
+        initClasses();
+
+        if(savedInstanceState == null){
+
+            FactoryClass.getInstance().moveToNextScreen(this,Constants.SPLASHSCREEN_TAG,null,false);
         }
 
-        //TODO: Need to be updated;
+        if(savedInstanceState != null ){
 
-        initClasses();
-      //  initializeAdmMod();
-        loadFragment(fragmentClass);
+            showLogs("Saved Instance State not null" + savedInstanceState);
+        }
 
         if(BuildConfig.FLAVOR.equals("paid"))
             loadLocale();
@@ -89,9 +85,9 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         super.onSaveInstanceState(outState);
 
         showLogs("Saved Instance called");
-        //Function get called whenever OS kills the app in order to reclaim the memory
+
         if(getSupportFragmentManager() != null)
-            getSupportFragmentManager().putFragment(outState,"saved_fragment",getSupportFragmentManager().findFragmentById(R.id.frame_container));
+            getSupportFragmentManager().putFragment(outState,"savedInstance",getSupportFragmentManager().findFragmentById(R.id.frame_container));
     }
 
     private void initializeAdmMod() {
@@ -108,6 +104,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     protected void onResume() {
 
         super.onResume();
+
         MediaHandler.getInstance(this);
 
         View decorView = getWindow().getDecorView();
@@ -132,9 +129,6 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
             @Override
             public void onSystemUiVisibilityChange(int visibility) {
                 if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
-                    // TODO: The system bars are visible. Make any desired
-                    // adjustments to your UI, such as showing the action bar or
-                    // other navigational controls.
                     hideNavigationAndStatusBar(decorView);
                 }
 
@@ -155,27 +149,6 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
                         | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-    }
-
-    private void loadFragment(Fragment fragment) {
-
-        // load fragment
-        fragmentManager  = getSupportFragmentManager();
-
-        //For Debugging
-//        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-//            @Override
-//            public void onBackStackChanged() {
-//
-//                Fragment fragment1 = fragmentManager.findFragmentById(R.id.frame_container);
-//                Log.i(TAG,fragment1.getClass().getSimpleName() + "  " + fragmentManager.getBackStackEntryCount());
-//            }
-//        });
-
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.frame_container, fragment);
-        transaction.commit();
-
     }
 
     @Override
@@ -211,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         else if(fragment instanceof GameOverScreen){
 
             // Intent to Home Screen frm this screen
-               FactoryClass.moveToNextScreen(this,null, Constants.HOMESCREEN_TAG);
+            FactoryClass.getInstance().moveToNextScreen(this,Constants.HOMESCREEN_TAG,null,true);
 
         }
     }
@@ -238,6 +211,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        MediaHandler.getInstance(this).destroySoundPool();
     }
 
     private void finishActivity(){

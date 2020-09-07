@@ -1,4 +1,4 @@
-package com.example.bsw_firsttask;
+package com.example.bsw_firsttask.Dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -19,13 +19,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
+import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.NativeAdCallback;
-import com.example.bsw_firsttask.Factory.Constants;
 import com.example.bsw_firsttask.Fragments.GameScreen;
-import com.example.bsw_firsttask.Fragments.HomeScreen;
-import com.facebook.ads.Ad;
+import com.example.bsw_firsttask.R;
 import com.google.android.gms.ads.formats.MediaView;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
@@ -64,15 +62,17 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
 
         initViews(view);
 
-        if(savedInstanceState != null){
-
-        }
-
         if(context != null && getContext().getResources() != null){
 
             textView.setText(context.getResources().getText(dialogTitle));
             positive.setText(getContext().getResources().getText(R.string.yes));
             negative.setText(getContext().getResources().getText(R.string.no));
+        }
+
+        if(savedInstanceState != null){
+
+            String title = savedInstanceState.getString("dialog_title");
+            textView.setText(title);
         }
 
         adMobHandler = AdMobHandler.getInstance(getActivity());
@@ -84,6 +84,43 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         //test();
 
         return view;
+    }
+
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putString("dialog_title",textView.getText().toString());
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if(getDialog() != null){
+
+            getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
+                @Override
+                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+
+                    if(keyCode == KeyEvent.KEYCODE_BACK){
+
+                        dialog.dismiss();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        if(lifecycleListener != null)
+            lifecycleListener.onDismiss();
     }
 
     private void test(){
@@ -177,18 +214,21 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
             switch (v.getId()){
 
                 case R.id.dialog_button1:
+
                     listener.positive();
                     break;
                 case R.id.dialog_button2:
+
                     listener.negative();
                     break;
                 case R.id.close_dialog:
+
                     listener.close();
                     break;
             }
         }
-        getDialog().dismiss();
 
+        dismiss();
     }
 
     @Override
@@ -221,10 +261,6 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     @Override
     public void onDestroyView() {
 
-        Dialog d = getDialog();
-        if (d != null && getRetainInstance())
-            d.setDismissMessage(null);
-
         super.onDestroyView();
     }
 
@@ -250,13 +286,13 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     public void onDetach() {
 
         listener = null;
+        lifecycleListener = null;
         super.onDetach();
     }
 
     @Override
     public void nativeAd(UnifiedNativeAd unifiedNativeAd) {
         this.unifiedNativeAd = unifiedNativeAd;
-
     }
 
     @Override
@@ -284,11 +320,13 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         void positive();
         void negative();
         void close();
+
     }
 
     public interface DialogLifecycleListener{
 
         void OnDialogResume();
         void OnDialogPause();
+        void onDismiss();
     }
 }

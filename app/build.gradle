@@ -53,4 +53,9 @@ dependencies {
     implementation 'com.google.ads.mediation:facebook:5.11.0.0'
 
     implementation 'com.google.android.ads:mediation-test-suite:1.4.0'
+
+    apply plugin: 'com.google.firebase.crashlytics'
+
+    // Add the Firebase Crashlytics SDK.
+    implementation 'com.google.firebase:firebase-crashlytics:17.2.1'
 }

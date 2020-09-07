@@ -1,4 +1,4 @@
-package com.example.bsw_firsttask;
+package com.example.bsw_firsttask.Receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

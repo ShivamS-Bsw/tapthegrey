@@ -3,8 +3,6 @@ package com.example.bsw_firsttask.Fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.media.MediaPlayer;
-import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -20,16 +18,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.bsw_firsttask.CustomDialog;
-import com.example.bsw_firsttask.Factory.Constants;
-import com.example.bsw_firsttask.FactoryClass;
-import com.example.bsw_firsttask.MediaHandler;
+import com.example.bsw_firsttask.Dialogs.CustomDialog;
+import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 
 
-import java.security.Key;
-import java.util.List;
 import java.util.Random;
 
 // no on pause onStop Override? when you stop your Handler?
@@ -61,6 +57,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private CustomDialog dialog;
     private boolean dialogResumed = false;
     private boolean dialogClosed = true;
+    private boolean currentFragment = true;
 
     public GameScreen(){
 
@@ -157,10 +154,12 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             }
         }, delayTime);
     }
+
     /**
      * no null check in callback?
      *
      */
+
     private void startMatch(){
          runnable = new Runnable() {
             @Override
@@ -224,7 +223,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                    // automateGame(currentButton);
 
                     if (!mStopHandler) {
-                        handler.postDelayed(this,3000);
+                        handler.postDelayed(this,1000);
                     }
                 }
             }
@@ -241,8 +240,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         args.putInt(Constants.CURRENT_SCORE,currentScore);
 
         if(getActivity() != null)
-            FactoryClass.moveToNextScreen(getActivity(),args,Constants.GAMEOVERCREEN_TAG);
-
+            FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.GAMEOVERCREEN_TAG,args,true);
     }
 
     @Override
@@ -275,6 +273,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         showLogs("On Resume Called");
 
+        currentFragment = true;
+
         // TODO:  Show the 2 timer to user and then start the match
         resumeHandler();
         startHandler(Constants.TIME_IN_MILLISECONDS);
@@ -296,6 +296,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         showLogs("On Stop Called");
         //this means fragment is not anymore visible
         //stop the game
+
+        currentFragment = false;
 
         if(dialog != null && dialogResumed)
             pauseHandler();
@@ -336,7 +338,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     public void restartHandler(){
 
         mStopHandler = false;
-        startHandler(Constants.TIME_IN_MILLISECONDS);
+        startHandler(Constants.RESTART_TIME);
     }
 
     @Override
@@ -399,11 +401,11 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void moveToHomeScreen(){
 
         if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen){
-            FactoryClass.moveToPreviousScreen(getFragmentManager(),-1);
+            FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
         }else{
 
             if(getActivity() != null)
-                FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
+                FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
         }
     }
 
@@ -420,12 +422,13 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     @Override
     public void close() {
-
-        Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
-        dialogClosed  = true;
-        dialog.dismiss();
-
     }
+
+    @Override
+    public void onDismiss() {
+        dialogClosed = true;
+    }
+
     private void automateGame(int currentButton){
 
         if(scoreCount != 5 ){
@@ -460,26 +463,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         dialogClosed = false;
 
         showLogs("On Dialog Resume");
-        if(getActivity() != null){
-            pauseHandler();
+            if(getActivity() != null && currentFragment) {
+                pauseHandler();
         }
-
-        if(dialog != null)
-            dialog.getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
-                @Override
-                public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-
-                    if(keyCode == KeyEvent.KEYCODE_BACK){
-                        dialogClosed = true;
-                        Toast.makeText(getContext(),"Press the Grey Color to Resume",Toast.LENGTH_LONG).show();
-                        dialog.dismiss();
-
-                        return true;
-                    }
-
-                    return false;
-                }
-            });
     }
 
     @Override
@@ -487,7 +473,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         showLogs("on Dialog Paused");
 
-        if(getActivity() != null && dialogClosed){
+        if(getActivity() != null && dialogClosed && currentFragment  ){
+
+            Toast.makeText(getContext(),"Tap the Grey color to continue",Toast.LENGTH_SHORT).show();
             restartHandler();
         }
     }

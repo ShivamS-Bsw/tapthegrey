@@ -1,5 +1,6 @@
 package com.example.bsw_firsttask.Fragments;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -10,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.bsw_firsttask.Factory.Constants;
-import com.example.bsw_firsttask.FactoryClass;
+import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
+import com.google.firebase.crashlytics.internal.common.CrashlyticsCore;
 
 public class SplashScreen extends Fragment {
 
@@ -46,14 +49,18 @@ public class SplashScreen extends Fragment {
                     Bundle params = new Bundle();
                     params.putInt(Constants.SAVED_SCORE,preferencesManager.getSavedScore());
 
-                    FactoryClass.moveToNextScreen(getActivity(),params,Constants.GAMESCREEN_TAG);
+                    FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.GAMESCREEN_TAG,params,true);
 
                 }else{
-
-                    FactoryClass.moveToNextScreen(getActivity(),null,Constants.HOMESCREEN_TAG);
+                    FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
                 }
             }
         }, Constants.SPLASH_DELAY);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
 }

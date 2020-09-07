@@ -20,6 +20,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/btn_play_state" />
 
+    <Button
+        android:id="@+id/crash"
+        android:layout_width="wrap_content"
+        android:text="Crash App"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_height="wrap_content"/>
+
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"

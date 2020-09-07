@@ -4,7 +4,9 @@
 
     <dimen name="text_18sp">20.3sp</dimen>
     <dimen name="dimen_8dp">9dp</dimen>
+<!--    Increased Size-->
     <dimen name="dimen_60dp">67.5dp</dimen>
+    <dimen name="marginTop">100dp</dimen>
     <dimen name="text_12sp">13.5sp</dimen>
     <dimen name="dimen_12dp">13.5dp</dimen>
     <dimen name="dimen_6dp">6.8dp</dimen>

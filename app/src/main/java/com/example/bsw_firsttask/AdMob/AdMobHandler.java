@@ -1,4 +1,4 @@
-package com.example.bsw_firsttask;
+package com.example.bsw_firsttask.AdMob;
 
 import android.app.Activity;
 import android.os.Handler;
@@ -14,7 +14,8 @@ import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
 import com.example.bsw_firsttask.Callbacks.NativeAdCallback;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
 import com.example.bsw_firsttask.Callbacks.RewardedAdLoadCallbacks;
-import com.example.bsw_firsttask.Factory.Constants;
+import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.R;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;

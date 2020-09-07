@@ -1,4 +1,4 @@
-package com.example.bsw_firsttask.Factory;
+package com.example.bsw_firsttask.Constants;
 
 // Constants class in Factory package?
 

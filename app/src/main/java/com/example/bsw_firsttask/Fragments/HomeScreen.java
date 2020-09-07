@@ -18,10 +18,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.bsw_firsttask.Activity.MainActivity;
-import com.example.bsw_firsttask.AdMobHandler;
-import com.example.bsw_firsttask.CustomDialog;
-import com.example.bsw_firsttask.Factory.Constants;
-import com.example.bsw_firsttask.FactoryClass;
+import com.example.bsw_firsttask.AdMob.AdMobHandler;
+import com.example.bsw_firsttask.Dialogs.CustomDialog;
+import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.Factory.FactoryClass;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 
@@ -35,6 +35,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     private static final String TAG = HomeScreen.class.getSimpleName();
     private AdMobHandler adMobHandler;
     public static FrameLayout progressLoader;
+    private Button crash;
 
     public HomeScreen(){ }
 
@@ -46,25 +47,19 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
 //        adMobHandler = AdMobHandler.getInstance(getActivity());
 //        adMobHandler.loadAdView();
 
-        if(savedInstanceState != null){
-
-            showLogs("Instance Not Null");
-            if(getFragmentManager() != null)
-                dialog = (CustomDialog) getFragmentManager().getFragment(savedInstanceState,"dialog");
-        }
-
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
 
+        crash = view.findViewById(R.id.crash);
+        crash.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                throw new RuntimeException("Test Crash");
+            }
+        });
+
+
         initView(view);
-
-//        new Handle1r().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                automateScreen();
-//            }
-//        },3000);
-
         return view;
     }
 
@@ -76,27 +71,14 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-
-//        if( dialog!= null && getActivity() != null && getFragmentManager() != null){
-//            getFragmentManager().putFragment(outState,"dialog",dialog);
-//        }
     }
 
     private void continueGame(){
 
-        // 1. Check whether any saved game is there or not
-        // 2. if yes, then show a  dialog (Continue with the saved game? YES/NO)
-        // 2.1 - YES// Start the saved game
-        //2.1.1 - Pass the saved score
-        //2.2 - NO// New game
-
         if(preferencesManager.checkSavedGame()){
-            // Saved Game is present
-            // Show a dialog
             showAlertDialog();
 
         }else {
-            // No Saved Game, Move to Game Screen with fresh score
             newGame();
         }
 
@@ -177,7 +159,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     private void newGame(){
 
         if(getActivity() != null)
-            FactoryClass.moveToNextScreen(getActivity(),null,Constants.GAMESCREEN_TAG);
+            FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.GAMESCREEN_TAG,null,true);
     }
 
     private void showChangeLanguageDialog(){
@@ -232,7 +214,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
 
         // Continue with the saved game and pass the score.
         if(getActivity() != null)
-            FactoryClass.moveToNextScreen(getActivity(),null,Constants.GAMESCREEN_TAG);
+            FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.GAMESCREEN_TAG,null,true);
 
     }
 
