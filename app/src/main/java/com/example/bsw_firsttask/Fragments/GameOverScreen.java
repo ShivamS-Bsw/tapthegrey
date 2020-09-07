@@ -157,9 +157,6 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         showLogs("On Saved Instance called");
 
         outState.putInt(Constants.STATE_SCORE,currentScore);
-
-//        if(sharedPreferencesManager != null)
-//            sharedPreferencesManager.saveStateScore(currentScore);
     }
 
     @Override

@@ -84,12 +84,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         //Get the score count if the fragment is destroyed and recreated
         if(savedInstanceState != null){
             scoreCount = savedInstanceState.getInt(Constants.STATE_SCORE);
-
-//            if( getFragmentManager() != null && getFragmentManager().getFragment(savedInstanceState,"custom_dialog") != null){
-//
-//                showLogs("Dialog Restored");
-//                //showDialog();
-//            }
         }
 
         isButtonClicked = true;
@@ -148,8 +142,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             @Override
             public void run() {
 
-                if(getActivity() != null)
+                if(getActivity() != null){
+
                     startMatch();
+                }
 
             }
         }, delayTime);
@@ -161,6 +157,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
      */
 
     private void startMatch(){
+
          runnable = new Runnable() {
             @Override
             public void run() {
@@ -330,7 +327,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         mStopHandler = true;
 
         if(handler != null)
-            handler.removeCallbacksAndMessages(runnable);
+            handler.removeCallbacksAndMessages(null);
     }
 
     public void resumeHandler(){
@@ -342,14 +339,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         mStopHandler = false;
         startHandler(Constants.TIME_IN_MILLISECONDS);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        if(handler != null)
-            handler.removeCallbacksAndMessages(runnable);
     }
 
     public void showDialog(){
@@ -405,6 +394,22 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             if(getActivity() != null)
                 FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        showLogs("On Destroy");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        showLogs("OnDestroyView");
+
+        if (handler != null)
+            handler.removeCallbacksAndMessages(null);
     }
 
     @Override
