@@ -223,7 +223,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                    // automateGame(currentButton);
 
                     if (!mStopHandler) {
-                        handler.postDelayed(this,1000);
+                        handler.postDelayed(this,3000);
                     }
                 }
             }
@@ -277,6 +277,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         // TODO:  Show the 2 timer to user and then start the match
         resumeHandler();
+
+        if(dialogClosed)
+            Toast.makeText(getContext(),"Wait for 2 Seconds to Continue",Toast.LENGTH_SHORT).show();
+
         startHandler(Constants.TIME_IN_MILLISECONDS);
 
     }
@@ -334,11 +338,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         mStopHandler = false;
     }
 
-    // from restart handler from custom dialog?
     public void restartHandler(){
 
         mStopHandler = false;
-        startHandler(Constants.RESTART_TIME);
+        startHandler(Constants.TIME_IN_MILLISECONDS);
     }
 
     @Override
@@ -375,14 +378,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         super.onSaveInstanceState(outState);
 
         outState.putInt(Constants.STATE_SCORE,scoreCount);
-//
-//        if(dialog != null && getFragmentManager() != null)
-//            getFragmentManager().putFragment(outState,"custom_dialog",dialog);
-
-//        // Not Sure about this need to ask
-//        if(preferencesManager != null)
-//            preferencesManager.saveStateScore(scoreCount);
-
     }
 
 
@@ -401,8 +396,11 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void moveToHomeScreen(){
 
         if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen){
+
             FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
-        }else{
+
+        }
+        else{
 
             if(getActivity() != null)
                 FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
@@ -411,8 +409,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     @Override
     public void negative() {
-
-        //Clear the saved game
 
         if(preferencesManager != null)
             preferencesManager.clearSavedGame();
@@ -473,9 +469,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         showLogs("on Dialog Paused");
 
+        // if it is called in same fragment and dialog is closed - Called after onDismiss
         if(getActivity() != null && dialogClosed && currentFragment  ){
 
-            Toast.makeText(getContext(),"Tap the Grey color to continue",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),"Wait for 2 Seconds to Continue",Toast.LENGTH_SHORT).show();
             restartHandler();
         }
     }

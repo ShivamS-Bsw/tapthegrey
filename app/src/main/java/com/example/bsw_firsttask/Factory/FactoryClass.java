@@ -77,6 +77,7 @@ public class FactoryClass {
     public static void moveToPreviousScreen(FragmentManager fragmentManager,String name){
 
         if(fragmentManager != null ){
+
             // If moves to a particular fragment
             if(name != null)
                 fragmentManager.popBackStack(name,0); // Remove the all fragment transaction above the @named fragment excluding it

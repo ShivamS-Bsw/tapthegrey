@@ -62,30 +62,12 @@ public class AdMobHandler {
         return adMobHandler;
     }
 
-    public void initClass(){
-
-        try{
-
-            Activity activity = getActivityRef();
-            if(activity != null){
-                activity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        initAds();
-                    }
-                });
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public void initAds() {
+    public void initAllAds() {
 
         if(getActivityRef() != null){
 
+            loadAdView();
             initExitInterstitialAd();
-            loadNativeAd();
             initRewardedAd();
         }
     }
@@ -98,10 +80,11 @@ public class AdMobHandler {
             adView = null;
         }
 
-        if(activity !=null){
+        if(activity != null){
 
             LinearLayout adParent = activity.findViewById(R.id.ad_layout);
             adParent.setVisibility(View.VISIBLE);
+
             adView = new AdView(activity);
 
             AdSize adSize = getAdSize();
@@ -110,11 +93,71 @@ public class AdMobHandler {
             adView.setAdUnitId(Constants.BANNER_ADunit_ID);
             adView.loadAd(getAdRequest());
             adParent.addView(adView);
+
+            adView.setAdListener(new AdListener() {
+                @Override
+                public void onAdClosed() {
+                    super.onAdClosed();
+                    showLogs("Banner Ad Closed");
+                }
+
+                @Override
+                public void onAdFailedToLoad(int errorCode) {
+                    super.onAdFailedToLoad(errorCode);
+                    showLogs("Banner Ad Failed " + errorCode);
+
+                }
+
+                @Override
+                public void onAdLeftApplication() {
+                    super.onAdLeftApplication();
+                }
+
+                @Override
+                public void onAdOpened() {
+                    super.onAdOpened();
+                    showLogs("Banner ad Opened");
+                }
+
+                @Override
+                public void onAdLoaded() {
+                    super.onAdLoaded();
+                    showLogs("Banner ad Loaded");
+
+                }
+            });
+
+            showBannerAd();
+        }
+    }
+
+    private void showBannerAd() {
+
+        if(getActivityRef() != null && adView != null){
+
+            View adParent = (getActivityRef().findViewById(R.id.ad_layout));
+
+            adParent.setVisibility(View.VISIBLE);
+            if (adView != null) {
+                adView.resume();
+            }
+        }
+    }
+
+    private void hideBannerAd(){
+
+        if (getActivityRef() != null) {
+            final View adLayout = getActivityRef().findViewById(R.id.ad_layout);
+            if (adLayout != null) {
+                adLayout.setVisibility(View.GONE);
+            }
+            if (adView != null) {
+                adView.pause();
+            }
         }
     }
 
     private AdLoader adLoader;
-
 
     public void loadNativeAd(){
 
@@ -174,7 +217,6 @@ public class AdMobHandler {
                     Log.i("Native Ad","Ad Failed to Load");
                     if(nativeAdCallback!=null)
                         nativeAdCallback.onAdFailedToLoad();
-
                     if (nativeHandler != null)
                             nativeHandler.postDelayed(nativeRunnable, 1000 * 60);
                 }
@@ -257,7 +299,8 @@ public class AdMobHandler {
 
                 @Override
                 public void onAdOpened() {
-
+                    super.onAdOpened();
+                    showLogs("Interstitial Ad Opened");
                     if(exitInterstitialAdCallback!=null)
                         exitInterstitialAdCallback.onAdOpen();
                 }
@@ -265,6 +308,7 @@ public class AdMobHandler {
                 @Override
                 public void onAdClosed() {
 
+                    showLogs("Interstitial Ad Closed");
                     if(exitInterstitialAd != null){
                         exitInterstitialAdCallback.onAdClosed();
                     }
@@ -275,7 +319,7 @@ public class AdMobHandler {
                 @Override
                 public void onAdLoaded() {
                     super.onAdLoaded();
-
+                    showLogs("Interstitial Ad Loaded");
                     if(exitInterstitialAd != null) {
                         exitInterstitialAdCallback.onLoadingCompleted();
                     }
@@ -285,6 +329,7 @@ public class AdMobHandler {
                 public void onAdFailedToLoad(LoadAdError loadAdError) {
                     super.onAdFailedToLoad(loadAdError);
 
+                    showLogs("Interstitial Ad Failed to Load "+ loadAdError);
                     if(exitInterstitialAd != null) {
                         exitInterstitialAdCallback.onLoadingFailed();
                     }
@@ -294,7 +339,6 @@ public class AdMobHandler {
             requestExitInterstitial();
         }
     }
-
 
     private Activity getActivityRef() {
         return activityWeakReference != null ? activityWeakReference.get() : null;
@@ -425,5 +469,8 @@ public class AdMobHandler {
 
     public void setUnifiedNativeAd(UnifiedNativeAd unifiedNativeAd) {
         this.unifiedNativeAd = unifiedNativeAd;
+    }
+    private void showLogs(String msg){
+        Log.d("AdHandler",msg);
     }
 }

@@ -200,9 +200,6 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
     }
 
-    /**
-     * what if we add more screen in between for that you will change the count?
-     */
     private void returnToHomeMenu(){
 
         showLogs("Return to Home Menu");

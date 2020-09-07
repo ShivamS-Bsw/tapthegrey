@@ -24,6 +24,7 @@ import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class HomeScreen extends Fragment implements CustomDialog.DialogListener {
 
@@ -51,6 +52,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
 
         crash = view.findViewById(R.id.crash);
+
         crash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

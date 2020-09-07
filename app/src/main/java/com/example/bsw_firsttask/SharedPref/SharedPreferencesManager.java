@@ -64,20 +64,6 @@ public class SharedPreferencesManager {
         editor.commit();
     }
 
-    public void saveStateScore(int score){
-
-        editor.putInt(STATE_SCORE,score);
-        editor.putBoolean(IS_STATE_SAVED,true);
-        editor.commit();
-    }
-
-    public int getStateScore(){
-
-        return sharedPreferences.getInt(STATE_SCORE,0);
-    }
-    public boolean checkStateSaved(){
-        return sharedPreferences.getBoolean(IS_STATE_SAVED,false);
-    }
     public int getReplayScore(){
         return sharedPreferences.getInt(REPLAY_GAME_SCORE,-1);
     }
