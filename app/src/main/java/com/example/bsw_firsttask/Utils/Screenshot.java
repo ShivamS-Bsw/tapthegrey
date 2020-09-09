@@ -1,29 +1,20 @@
-package com.example.bsw_firsttask;
+package com.example.bsw_firsttask.Utils;
 
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class Screenshot  {
 
 
     private static Screenshot screenshot;
-    private FileOutputStream fileOutputStream;
-
     private Screenshot(){
     }
 
@@ -51,17 +42,16 @@ public class Screenshot  {
         return null;
     }
 
-    private   File saveImageToExternalStorage(Context context, Bitmap finalBitmap) {
+    private File saveImageToExternalStorage(Context context, Bitmap finalBitmap) {
 
 
         long n  = System.currentTimeMillis() / 1000L;
         String fname = "image-" + n + ".jpg";
 
+
         File file = new File(context.getExternalFilesDir(null), fname);
 
         Log.d("Screenshot",file.getAbsolutePath());
-
-        FirebaseCrashlytics.getInstance().setCustomKey("File_location",file.getAbsolutePath());
 
         try {
 
@@ -72,6 +62,7 @@ public class Screenshot  {
             out.close();
         }
         catch (Exception e) {
+            e.printStackTrace();
             FirebaseCrashlytics.getInstance().recordException(e);
         }
 

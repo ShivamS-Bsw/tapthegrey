@@ -41,9 +41,7 @@ public class AdMobHandler {
     private static WeakReference<Activity> activityWeakReference = null;
     private ExitInterstitialAdCallback exitInterstitialAdCallback;
     private RewardedAd rewardedAd;
-    private RewardedAdLoadCallbacks rewardedAdLoadCallback;
     private RewardAdCallbacks rewardedAdCallback;
-    public static boolean iSshowRewardedLoaded = false ;
     private Handler nativeHandler;
     public UnifiedNativeAd unifiedNativeAd;
     private NativeAdCallback nativeAdCallback;
@@ -66,8 +64,8 @@ public class AdMobHandler {
 
         if(getActivityRef() != null){
 
-            loadAdView();
-            initExitInterstitialAd();
+//            loadAdView();
+//            initExitInterstitialAd();
             initRewardedAd();
         }
     }
@@ -267,20 +265,12 @@ public class AdMobHandler {
 
                 @Override
                 public void onRewardedAdLoaded() {
-                    if(rewardedAdLoadCallback != null){
-
                         Log.d("Rewarded Ad","Loading Complete");
-                        rewardedAdLoadCallback.onLoadCompleted();
-                    }
                 }
 
                 @Override
                 public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
-                    if(rewardedAdLoadCallback != null){
-
                         Log.d("Rewarded Ad","Loading Failed");
-                        rewardedAdLoadCallback.onLoadFailed();
-                    }
                 }
             };
                 rewardedAd.loadAd(getAdRequest(),callback);
@@ -355,13 +345,6 @@ public class AdMobHandler {
         return builder.build();
     }
 
-    public boolean isRewardedLoaded(){
-
-        return rewardedAd != null && rewardedAd.isLoaded();
-    }
-
-
-
     public boolean isExitInterstitialLoaded(){
 
         if (exitInterstitialAd != null && !exitInterstitialAd.isLoaded() && !exitInterstitialAd.isLoading()) {
@@ -369,8 +352,8 @@ public class AdMobHandler {
         }
         return true;
     }
-    // What if reward ad "rewardedAd.isLoaded()" is not loaded?
-    public void showRewardedAd(){
+
+    public boolean showRewardedAd(){
 
         Activity activityContext = getActivityRef();
 
@@ -384,12 +367,13 @@ public class AdMobHandler {
                         if(rewardedAdCallback != null)
                             rewardedAdCallback.onRewardAddOpen();
                     }
-
                     @Override
                     public void onRewardedAdClosed() {
 
                         if(rewardedAdCallback != null)
                             rewardedAdCallback.onRewardAddClose();
+
+                        initRewardedAd();
                     }
                     @Override
                     public void onUserEarnedReward(@NonNull RewardItem reward) {
@@ -403,8 +387,13 @@ public class AdMobHandler {
                     }
                 };
                 rewardedAd.show(activityContext,adCallback);
+
+                return true;
+            }else{
+                initRewardedAd();
             }
         }
+        return false;
     }
 
     public void showExitIntAd(){
@@ -455,10 +444,6 @@ public class AdMobHandler {
         this.rewardedAdCallback = rewardedAdCallback;
     }
 
-    public void setRewardedAdLoadCallback(RewardedAdLoadCallbacks rewardedAdLoadCallback) {
-        this.rewardedAdLoadCallback = rewardedAdLoadCallback;
-    }
-
     public void setNativeAdCallback(NativeAdCallback nativeAdCallback) {
         this.nativeAdCallback = nativeAdCallback;
     }
@@ -472,5 +457,28 @@ public class AdMobHandler {
     }
     private void showLogs(String msg){
         Log.d("AdHandler",msg);
+    }
+
+    public void onPause() {
+
+        if(adView != null)
+            adView.pause();
+    }
+    public void onClose(){
+
+        onDestroy();
+        activityWeakReference = null;
+        adMobHandler = null;
+
+    }
+
+    public void onDestroy(){
+
+        if(adView != null){
+            adView.destroy();
+            adView = null;
+        }
+        exitInterstitialAd = null;
+        rewardedAd = null;
     }
 }

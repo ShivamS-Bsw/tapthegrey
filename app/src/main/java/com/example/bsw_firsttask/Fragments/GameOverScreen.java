@@ -17,36 +17,31 @@ import androidx.fragment.app.Fragment;
 
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
-import com.example.bsw_firsttask.Callbacks.RewardedAdLoadCallbacks;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Utils.FirebaseAnalyticsHelper;
 import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.rewarded.RewardItem;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
-public class GameOverScreen extends Fragment implements View.OnClickListener,RewardAdCallbacks,RewardedAdLoadCallbacks {
+public class GameOverScreen extends Fragment implements View.OnClickListener,RewardAdCallbacks {
 
     private MediaHandler mediaHandler;
     public static final String TAG = GameOverScreen.class.getSimpleName();
     private TextView points,best;
     private Button replay,home;
     private SharedPreferencesManager sharedPreferencesManager;
-//    private AdMobHandler adMobHandler;
-//    private RewardAdCallbacks rewardedAdCallback;
-//    private RewardedAdLoadCallbacks loadCallbacks;
-//    private boolean isAdClosed ;
+
+    private RewardAdCallbacks rewardedAdCallback;
+
     private boolean isRewardAdRequested;
     private RewardItem rewardItem;
     private int currentScore;
-    private FirebaseAnalytics firebaseAnalytics;
-
 
     private FrameLayout progressBar;
-    public GameOverScreen(){
-    }
+    public GameOverScreen(){ }
 
 
     @Nullable
@@ -62,10 +57,8 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
         mediaHandler = MediaHandler.getInstance(getContext());
-        firebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
-        //        adMobHandler = AdMobHandler.getInstance(getActivity());
-//        adMobHandler.setRewardedAdCallback(rewardedAdCallback);
-//        adMobHandler.setRewardedAdLoadCallback(loadCallbacks);
+
+        AdMobHandler.getInstance(getActivity()).setRewardedAdCallback(rewardedAdCallback);
     }
 
     private void initListeners(){
@@ -81,30 +74,26 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         super.onAttach(context);
 
 
-//        try {
-//
-//            rewardedAdCallback = this;
-//            loadCallbacks = this;
-//
-//        }catch (ClassCastException e){
-//            System.out.print(e.getMessage());
-//        }
+        try {
+
+            rewardedAdCallback = this;
+
+        }catch (ClassCastException e){
+            System.out.print(e.getMessage());
+        }
 
     }
 
     @Override
     public void onDetach() {
-
-//        rewardedAdCallback = null;
-//        loadCallbacks = null;
-
         super.onDetach();
+
+        rewardedAdCallback = null;
     }
 
     private void initViews(View v) {
 
-//        isAdClosed = false;
-//        isRewardAdRequested = false;
+        isRewardAdRequested = false;
 
         best = v.findViewById(R.id.best);
         points = v.findViewById(R.id.points);
@@ -145,7 +134,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
             sharedPreferencesManager.setBestScore(currentScore);
             best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
 
-            firebaseAnalytics.setUserProperty(Constants.USER_PROPERTY_1,String.valueOf(currentScore));
+            FirebaseAnalyticsHelper.setUserProperty(getContext(),Constants.USER_PROPERTY_1,String.valueOf(currentScore));
 
         }
 
@@ -182,36 +171,26 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
             rewardItem = null;
 
-//            if(adMobHandler.isRewardedLoaded()){
-//
-//                isRewardAdRequested = true;
-//                showProgressIndi();
-//
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                        // no null check? even you in callback with delay.
-//                        adMobHandler.showRewardedAd();
-//
-//                    }
-//                },500);
-//
-//            }else{
-//                returnToGameScreen();
-//            }
+            if(AdMobHandler.getInstance(getActivity()).showRewardedAd()){
+                isRewardAdRequested = true;
+                showProgressIndicator();
 
-            returnToGameScreen();
+            }else{
+
+                isRewardAdRequested = false;
+                returnToGameScreen();
+            }
+
         }else if(v.getId() == R.id.home_btn ){
-                returnToHomeMenu(); }
+            returnToHomeMenu();
+        }
     }
 
     private void returnToGameScreen(){
-        // Intent to Game Screen from this screen
         FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
     }
 
-    private void returnToHomeMenu(){
+    public void returnToHomeMenu(){
 
         showLogs("Return to Home Menu");
 
@@ -222,13 +201,13 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
             FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
     }
 
-    private void hideProgressIndi(){
+    private void hideProgressIndicator(){
 
         if(progressBar != null)
             progressBar.setVisibility(View.GONE);
     }
 
-    private void showProgressIndi(){
+    private void showProgressIndicator(){
 
         if(progressBar != null)
             progressBar.setVisibility(View.VISIBLE);
@@ -236,24 +215,17 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     @Override
     public void onRewardAddOpen() {
-
-        //isAdClosed = false;
-        hideProgressIndi();
+        hideProgressIndicator();
     }
 
     @Override
     public void onRewardAddClose() {
 
-//        isAdClosed = true;
-
         if(rewardItem != null){
-
             sharedPreferencesManager.saveReplay(currentScore);
-            returnToGameScreen();
         }
-        else
-            showToast("Please watch complete ad to replay");
 
+        returnToGameScreen();
     }
 
     @Override
@@ -266,7 +238,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onRewardAddFailedtoLoad(AdError error) {
 
-        hideProgressIndi();
+        hideProgressIndicator();
         returnToGameScreen();
 
         showLogs("on Reward Failed to Load");
@@ -276,21 +248,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         Log.d(TAG,log);
     }
 
-    @Override
-    public void onLoadFailed() {
-
-        showLogs("on Failed to Load");
-
-        if(isRewardAdRequested){
-
-            hideProgressIndi();
-            returnToGameScreen();
-        }
-
-    }
-
     private void showToast(String msg){
-
         Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT).show();
     }
 
@@ -298,20 +256,10 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     public void onPause() {
         super.onPause();
 
-//        if(isRewardAdRequested){
-//
-//            showLogs("On Pause Called");
-//            getActivity().overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
-//        }
+        if(isRewardAdRequested){
 
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
-    public void onLoadCompleted() {
+            showLogs("On Pause Called");
+            getActivity().overridePendingTransition(android.R.anim.slide_in_left,0);
+        }
     }
 }

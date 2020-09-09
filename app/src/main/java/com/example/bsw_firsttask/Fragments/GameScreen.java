@@ -1,12 +1,11 @@
 package com.example.bsw_firsttask.Fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,23 +16,18 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
-import com.example.bsw_firsttask.BuildConfig;
-import com.example.bsw_firsttask.DeviceInfo;
 import com.example.bsw_firsttask.Dialogs.CustomDialog;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Utils.FirebaseAnalyticsHelper;
+import com.example.bsw_firsttask.Utils.Mail;
 import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
-import com.example.bsw_firsttask.Screenshot;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 
-import java.io.File;
 import java.util.Random;
 
 // no on pause onStop Override? when you stop your Handler?
@@ -49,8 +43,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean isButtonClicked;
     private MediaHandler mediaHandler;
     private Runnable runnable;
-
-    private FirebaseAnalytics firebaseAnalytics;
 
     private SharedPreferencesManager preferencesManager;
 
@@ -70,6 +62,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean dialogResumed = false;
     private boolean dialogClosed = true;
     private boolean currentFragment = true;
+    private long mLastClickTime = 0;
 
     public GameScreen(){
 
@@ -123,52 +116,25 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         support.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 2000) {
+                    return;
+
+                }
+                mLastClickTime = SystemClock.elapsedRealtime();
                 email();
+
             }
         });
     }
 
     private void email(){
 
-        String email = "shivam@bswgames.com";
-        String subject = "Issue in the game";
-        String body = "Feedback: " + "\n"+
-                "Network Type: " + DeviceInfo.getInstance(getActivity()).getNetworkType() + "\n" +
-                "Score: " + scoreCount + "\n" +
-                "Device Info: " + "\n"+
-                DeviceInfo.getInstance(getActivity()).getDeviceInfo();
+        Mail.getInstance(getActivity()).sendEmail(scoreCount);
 
-        try{
-
-            File imageFile = Screenshot.getInstance().takeScreenshot(getActivity());
-
-            Intent emailIntent = new Intent(Intent.ACTION_SEND);
-            emailIntent.putExtra(Intent.EXTRA_EMAIL,new String[]{email});
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT,subject);
-            emailIntent.putExtra(Intent.EXTRA_TEXT,body);
-
-            emailIntent.setType("image/*"); // accept any image
-
-            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-            Uri uri = null;
-
-            if (getActivity()!= null && imageFile != null)
-                uri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".provider",imageFile);
-
-            if(uri != null)
-                emailIntent.putExtra(Intent.EXTRA_STREAM,uri);
-
-            startActivity(Intent.createChooser(emailIntent, "Send your email in:"));
-
-
-        }catch (Exception e){
-            FirebaseCrashlytics.getInstance().recordException(e);
-        }
     }
     private void initClasses(){
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
         mediaHandler = MediaHandler.getInstance(getContext());
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         handler = new Handler();
@@ -296,7 +262,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void gameOver(int currentScore){
 
         params2.putInt("score_val",currentScore);
-        firebaseAnalytics.logEvent(Constants.EVENT_4,params2);
+        FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_4,params2);
 
         gamer(currentScore);
 
@@ -320,7 +286,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             if(preferencesManager.getPreviousScore()< currentScore){
 
                 Toast.makeText(getContext(),"Yes!! I'm a Gamer",Toast.LENGTH_SHORT).show();
-                firebaseAnalytics.setUserProperty(Constants.USER_PROPERTY_2,"Gamer");
+                FirebaseAnalyticsHelper.setUserProperty(context,Constants.USER_PROPERTY_2,"Gamer");
             }// Else he is not a gamer
         }
     }
@@ -459,7 +425,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         // 1. Save the score in shared preference and set the saved flag to YES
 
         params3.putInt("score",scoreCount);
-        firebaseAnalytics.logEvent(Constants.EVENT_2,params3);
+        FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_2,params3);
 
         if(preferencesManager != null){
             preferencesManager.saveGame(scoreCount);
@@ -502,7 +468,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     public void negative() {
 
         params1.putInt("score_val",scoreCount);
-        firebaseAnalytics.logEvent(Constants.EVENT_3,params1);
+        FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_3,params1);
 
         if(preferencesManager != null)
             preferencesManager.clearSavedGame();

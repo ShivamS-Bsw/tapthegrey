@@ -23,26 +23,22 @@ import com.example.bsw_firsttask.Fragments.GameScreen;
 import com.example.bsw_firsttask.Fragments.HomeScreen;
 import com.example.bsw_firsttask.Fragments.SplashScreen;
 import com.example.bsw_firsttask.Media.MediaHandler;
-import com.example.bsw_firsttask.Receiver.NetworkReceiver;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements ExitInterstitialAdCallback,NetworkReceiver.ConnectivityReceiverListener {
+public class MainActivity extends AppCompatActivity implements ExitInterstitialAdCallback{
 
     public static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferencesManager preferencesManager;
-    private AdMobHandler adMobHandler;
     private ExitInterstitialAdCallback exitInterstitialAdCallback;
     public static boolean isAdMobInit = false;
-    private NetworkReceiver.ConnectivityReceiverListener connectivityReceiverListener;
-    private NetworkReceiver networkReceiver;
-    public static boolean isNetworkConnected = true;
 
 
     @Override
@@ -51,36 +47,26 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         setContentView(R.layout.activity_main);
 
         initClasses();
+        initializeAdmMod();
 
-        if(savedInstanceState == null){
+        AdMobHandler.getInstance(MainActivity.this).initAllAds();
 
-            FactoryClass.getInstance().moveToNextScreen(this,Constants.SPLASHSCREEN_TAG,null,false);
+        if (savedInstanceState == null) {
+
+            FactoryClass.getInstance().moveToNextScreen(this, Constants.SPLASHSCREEN_TAG, null, false);
         }
 
-        if(savedInstanceState != null ){
+        if (savedInstanceState != null) {
 
             showLogs("Saved Instance State not null" + savedInstanceState);
         }
 
-        if(BuildConfig.FLAVOR.equals("paid"))
+        if (BuildConfig.FLAVOR.equals("paid"))
             loadLocale();
     }
 
     private void initClasses() {
         preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
-
-//      adMobHandler = AdMobHandler.getInstance(this);
-
-  //      exitInterstitialAdCallback = this;
-//
-//        adMobHandler.setExitInterstitialAdCallback(exitInterstitialAdCallback);
-//
-//        connectivityReceiverListener = this;
-//        networkReceiver = new NetworkReceiver();
-//        networkReceiver.setConnectivityReceiverListener(connectivityReceiverListener);
-//
-//        adMobHandler.initClass();
-//
     }
 
     @Override
@@ -89,18 +75,22 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         showLogs("Saved Instance called");
 
-        if(getSupportFragmentManager() != null)
-            getSupportFragmentManager().putFragment(outState,"savedInstance",getSupportFragmentManager().findFragmentById(R.id.frame_container));
+        if (getSupportFragmentManager() != null)
+            getSupportFragmentManager().putFragment(outState, "savedInstance", getSupportFragmentManager().findFragmentById(R.id.frame_container));
     }
 
     private void initializeAdmMod() {
 
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-                isAdMobInit = true;
-            }
-        });
+        MobileAds.initialize(this);
+
+        try {
+            if (MobileAds.getInitializationStatus() == null)
+                MobileAds.initialize(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+            MobileAds.initialize(this);
+        }
+
     }
 
     @Override
@@ -114,19 +104,17 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         hideNavigationAndStatusBar(decorView);
         hideNavigationAndStatusBarListener(decorView);
 
-       // this.registerReceiver(networkReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-        //unregisterReceiver(networkReceiver);
+        AdMobHandler.getInstance(this).onPause();
     }
 
-  //   Method to Hide and Show the Navigation and Status Bar Listener
-    private void hideNavigationAndStatusBarListener(final View decorView){
+    //   Method to Hide and Show the Navigation and Status Bar Listener
+    private void hideNavigationAndStatusBarListener(final View decorView) {
 
         decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
             @Override
@@ -139,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         });
     }
 
-    private void hideNavigationAndStatusBar(View decorView){
+    private void hideNavigationAndStatusBar(View decorView) {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
@@ -159,40 +147,21 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.frame_container);
 
-        if (fragment instanceof HomeScreen || fragment instanceof SplashScreen){
+        if (fragment instanceof HomeScreen || fragment instanceof SplashScreen) {
+            ((HomeScreen) fragment).onBackPressed();
 
-//            if(adMobHandler.isExitInterstitialLoaded()) {
-//
-//                HomeScreen.showLoader();
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//
-//                        // Show the add after 500ms of loading
-//                        adMobHandler.showExitIntAd();
-//                    }
-//                },500);
-//
-//            }
-//            else {
-//                finishActivity();
-//            }
-
-            finishActivity();
-        }
-        else if(fragment instanceof GameScreen){
+        } else if (fragment instanceof GameScreen) {
 
             ((GameScreen) fragment).showDialog();
-        }
-        else if(fragment instanceof GameOverScreen){
 
-            // Intent to Home Screen frm this screen
-            FactoryClass.getInstance().moveToNextScreen(this,Constants.HOMESCREEN_TAG,null,true);
+        } else if (fragment instanceof GameOverScreen) {
+
+            ((GameOverScreen)fragment).returnToHomeMenu();
 
         }
     }
 
-    private void loadLocale(){
+    private void loadLocale() {
 
         setLocale(preferencesManager.getLocale());
     }
@@ -205,7 +174,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         Configuration configuration = new Configuration();
         configuration.locale = locale;
 
-        this.getResources().updateConfiguration(configuration,this.getResources().getDisplayMetrics());
+        this.getResources().updateConfiguration(configuration, this.getResources().getDisplayMetrics());
 
         //Save this data in shared pref
         preferencesManager.saveLocale(s);
@@ -222,9 +191,10 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         super.onDestroy();
 
         MediaHandler.getInstance(this).destroySoundPool();
+        AdMobHandler.getInstance(this).onClose();
     }
 
-    private void finishActivity(){
+    public void finishActivity() {
         MainActivity.this.finish();
     }
 
@@ -250,24 +220,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         showLogs("Exit Int Ad Loading failed");
     }
 
-    private void showLogs(String log){
-        Log.d(TAG,log);
+    private void showLogs(String log) {
+        Log.d(TAG, log);
     }
 
-    @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-        if(isConnected && adMobHandler != null) {
-
-            isNetworkConnected = true;
-//
-            if(!adMobHandler.isRewardedLoaded())
-                adMobHandler.initRewardedAd();
-//
-            if(!adMobHandler.isExitInterstitialLoaded())
-                adMobHandler.initExitInterstitialAd();
-
-        }else{
-            isNetworkConnected = false;
-        }
-    }
 }

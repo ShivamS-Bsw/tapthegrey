@@ -26,9 +26,7 @@ android {
             dimension 'default'
             applicationId "com.example.bsw_firsttask.free"
             resValue "string", "app_name", "BSW_FREE"
-
         }
-
         paid {
             dimension 'default'
             applicationId "com.example.bsw_firsttask.paid"

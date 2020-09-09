@@ -1,4 +1,4 @@
-package com.example.bsw_firsttask;
+package com.example.bsw_firsttask.Utils;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -11,7 +11,6 @@ import android.telephony.TelephonyManager;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 
 public class DeviceInfo {
 

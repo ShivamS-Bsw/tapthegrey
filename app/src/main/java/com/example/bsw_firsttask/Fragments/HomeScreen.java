@@ -1,13 +1,8 @@
 package com.example.bsw_firsttask.Fragments;
 
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,20 +19,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.bsw_firsttask.Activity.MainActivity;
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
-import com.example.bsw_firsttask.DeviceInfo;
 import com.example.bsw_firsttask.Dialogs.CustomDialog;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Utils.FirebaseAnalyticsHelper;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class HomeScreen extends Fragment implements CustomDialog.DialogListener {
 
@@ -50,7 +39,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     private AdMobHandler adMobHandler;
     public static FrameLayout progressLoader;
     private Button crash;
-    private FirebaseAnalytics firebaseAnalytics;
     private Bundle params;
     private ImageView bgImage;
     private String imageUrl = "https://www.tutorialspoint.com/images/tp-logo-diamond.png";
@@ -65,7 +53,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
 //        adMobHandler = AdMobHandler.getInstance(getActivity());
 //        adMobHandler.loadAdView();
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
         params = new Bundle();
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
@@ -237,7 +224,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public void positive() {
 
         params.putBoolean("is_saved_game",true);
-        firebaseAnalytics.logEvent(Constants.EVENT_1,params);
+        FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_1,params);
 
         // Continue with the saved game and pass the score.
         if(getActivity() != null)
@@ -249,7 +236,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public void negative() {
 
         params.putBoolean("is_saved_game",false);
-        firebaseAnalytics.logEvent(Constants.EVENT_1,params);
+        FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_1,params);
 
         //Clear the Shared Preference and start the new game
         if(preferencesManager != null && getActivity() != null )
@@ -270,4 +257,8 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         playButton.performClick();
     }
 
+    public void onBackPressed(){
+
+        ((MainActivity)getActivity()).finishActivity();
+    }
 }
