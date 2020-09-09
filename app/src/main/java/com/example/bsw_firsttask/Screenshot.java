@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -59,6 +61,8 @@ public class Screenshot  {
 
         Log.d("Screenshot",file.getAbsolutePath());
 
+        FirebaseCrashlytics.getInstance().setCustomKey("File_location",file.getAbsolutePath());
+
         try {
 
             FileOutputStream out = new FileOutputStream(file);
@@ -68,7 +72,7 @@ public class Screenshot  {
             out.close();
         }
         catch (Exception e) {
-            e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
 
         return file;

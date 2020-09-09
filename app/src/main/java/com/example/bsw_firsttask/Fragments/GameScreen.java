@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +40,7 @@ import java.util.Random;
 public class GameScreen extends Fragment implements View.OnClickListener , CustomDialog.DialogListener , CustomDialog.DialogLifecycleListener {
 
     public static final String TAG = GameScreen.class.getSimpleName();
-    private TextView scoreTextView;
+    private TextView scoreTextView,timer;
     private Button button1,button2,button3,button4,support;
     private Random rand;
     private int currentButton, lastButton;
@@ -97,14 +98,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             scoreCount = savedInstanceState.getInt(Constants.STATE_SCORE);
         }
 
-        isButtonClicked = true;
-        allowButtonCLick = false;
-
 
         setButtonListeners();
 
         lastButton = rand.nextInt(4)+1;
-        mStopHandler = false;
         context = getContext();
 
 
@@ -142,7 +139,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                 DeviceInfo.getInstance(getActivity()).getDeviceInfo();
 
         try{
-
 
             File imageFile = Screenshot.getInstance().takeScreenshot(getActivity());
 
@@ -195,24 +191,35 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         button2= view.findViewById(R.id.button01);
         button3= view.findViewById(R.id.button10);
         button4= view.findViewById(R.id.button11);
+        timer = view.findViewById(R.id.countdown);
         support = view.findViewById(R.id.button_support);
     }
 
-    private void startHandler(int delayTime){
+    private void startCountDown(int maxTimeInSec){
 
-        new Handler().postDelayed(new Runnable() {
+        timer.setVisibility(View.VISIBLE);
+        new CountDownTimer(maxTimeInSec,1000){
+
             @Override
-            public void run() {
+            public void onTick(long millisUntilFinished) {
 
-                if(getActivity() != null){
-
-                    startMatch();
-                }
-
+                if((millisUntilFinished/1000) == 0)
+                    timer.setText("GO");
+                else
+                    timer.setText(String.valueOf(millisUntilFinished/1000));
             }
-        }, delayTime);
-    }
 
+            @Override
+            public void onFinish() {
+
+                timer.setVisibility(View.GONE);
+
+                if(getActivity() != null)
+                    startMatch();
+            }
+        }.start();
+
+    }
     /**
      * no null check in callback?
      *
@@ -286,7 +293,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                    // automateGame(currentButton);
 
                     if (!mStopHandler) {
-                        handler.postDelayed(this,2000);
+                        handler.postDelayed(this,1000);
                     }
                 }
             }
@@ -357,15 +364,11 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         showLogs("On Resume Called");
 
         currentFragment = true;
+        isButtonClicked = true;
+        allowButtonCLick = false;
+        mStopHandler = false;
 
-        // TODO:  Show the 2 timer to user and then start the match
-        resumeHandler();
-
-        if(dialogClosed)
-            Toast.makeText(getContext(),"Wait for 2 Seconds to Continue",Toast.LENGTH_SHORT).show();
-
-        startHandler(Constants.TIME_IN_MILLISECONDS);
-
+        startCountDown(3000);
     }
 
     @Override
@@ -392,6 +395,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     private boolean checkButtonClick(int buttonId, int currentButton){
 
+
         if(buttonId == R.id.button00 && currentButton == 1){
             return true;
         }
@@ -408,7 +412,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             return false;
     }
 
-    public void pauseHandler(){
+    private void pauseHandler(){
 
         mStopHandler = true;
 
@@ -416,15 +420,12 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             handler.removeCallbacksAndMessages(null);
     }
 
-    public void resumeHandler(){
+    private void restartHandler(){
 
+        isButtonClicked = true;
+        allowButtonCLick = false;
         mStopHandler = false;
-    }
-
-    public void restartHandler(){
-
-        mStopHandler = false;
-        startHandler(Constants.TIME_IN_MILLISECONDS);
+        startCountDown(3000);
     }
 
     public void showDialog(){
@@ -568,8 +569,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         showLogs("on Dialog Paused");
         // if it is called in same fragment and dialog is closed - Called after onDismiss
         if(getActivity() != null && dialogClosed && currentFragment  ){
-
-            Toast.makeText(getContext(),"Wait for 2 Seconds to Continue",Toast.LENGTH_SHORT).show();
             restartHandler();
         }
     }

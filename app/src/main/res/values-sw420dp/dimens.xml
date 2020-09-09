@@ -17,5 +17,6 @@
     <dimen name="text_14sp">18.4sp</dimen>
     <dimen name="dimen_28dp">36.8dp</dimen>
     <dimen name="dimen_200dp">262.5dp</dimen>
+    <dimen name="timer_text">131sp</dimen>
 
 </resources>

@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     private NetworkReceiver.ConnectivityReceiverListener connectivityReceiverListener;
     private NetworkReceiver networkReceiver;
     public static boolean isNetworkConnected = true;
-    private FirebaseAnalytics firebaseAnalytics;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
     private void initClasses() {
         preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
 //      adMobHandler = AdMobHandler.getInstance(this);
 
