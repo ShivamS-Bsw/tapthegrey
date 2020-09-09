@@ -27,4 +27,12 @@ public class Constants {
     public static final int BANNER_AD_ID = 1;
     public static final int INTERSTITIAL_AD_ID = 2;
 
+    public static final String EVENT_1 = "game_start";
+    public static final String EVENT_2 = "game_saved";
+    public static final String EVENT_3 = "game_left";
+    public static final String EVENT_4 = "game_end";
+    public static final String USER_PROPERTY_1 = "best_score";
+    public static final String USER_PROPERTY_2 = "gamer";
+
+
 }

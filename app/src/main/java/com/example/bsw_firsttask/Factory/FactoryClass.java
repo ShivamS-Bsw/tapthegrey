@@ -13,6 +13,7 @@ import com.example.bsw_firsttask.Fragments.GameScreen;
 import com.example.bsw_firsttask.Fragments.HomeScreen;
 import com.example.bsw_firsttask.Fragments.SplashScreen;
 import com.example.bsw_firsttask.R;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.crashlytics.internal.common.CrashlyticsCore;
 
 public class FactoryClass {
@@ -29,26 +30,32 @@ public class FactoryClass {
 
     public void moveToNextScreen(FragmentActivity activity,String fragmentTag,Bundle args, boolean addToBackStack){
 
-        if(activity!=null){
+        try{
 
-            Fragment fragment = getFragmentObject(fragmentTag);
+            if(activity!=null){
 
-            FragmentManager fragmentManager = activity.getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                Fragment fragment = getFragmentObject(fragmentTag);
 
-            fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,android.R.anim.fade_out,android.R.anim.fade_in,android.R.anim.fade_out);
+                FragmentManager fragmentManager = activity.getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-            if(args != null)
-            fragment.setArguments(args);
+                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,android.R.anim.fade_out,android.R.anim.fade_in,android.R.anim.fade_out);
 
-            fragmentTransaction.replace(R.id.frame_container, fragment,fragmentTag);
+                if(args != null)
+                    fragment.setArguments(args);
 
-            if(addToBackStack)
-                fragmentTransaction.addToBackStack(fragmentTag);
+                fragmentTransaction.replace(R.id.frame_container, fragment,fragmentTag);
 
-            if(!fragmentManager.isStateSaved()) {
-                fragmentTransaction.commit();
+                if(addToBackStack)
+                    fragmentTransaction.addToBackStack(fragmentTag);
+
+                if(!fragmentManager.isStateSaved()) {
+                    fragmentTransaction.commit();
+                }
             }
+
+        }catch (Exception e){
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -70,7 +77,6 @@ public class FactoryClass {
 
         }
         return new HomeScreen();
-
 
     }
 

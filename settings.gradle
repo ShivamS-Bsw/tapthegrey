@@ -1,2 +1,2 @@
-include ':app', ':nativetemplates'
+include ':app'
 rootProject.name='BSW_FirstTask'

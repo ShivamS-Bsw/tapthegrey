@@ -27,6 +27,7 @@ import com.example.bsw_firsttask.R;
 import com.google.android.gms.ads.formats.MediaView;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public class CustomDialog extends DialogFragment implements View.OnClickListener, NativeAdCallback {
 
@@ -278,7 +279,9 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
             lifecycleListener = (DialogLifecycleListener) getTargetFragment();
 
         }catch (ClassCastException e){
-            System.out.print(e.getMessage());
+
+            FirebaseCrashlytics.getInstance().log("Custom Dialog Listener attach error");
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 

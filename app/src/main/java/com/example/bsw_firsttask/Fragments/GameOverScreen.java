@@ -25,6 +25,7 @@ import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class GameOverScreen extends Fragment implements View.OnClickListener,RewardAdCallbacks,RewardedAdLoadCallbacks {
 
@@ -33,13 +34,15 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private TextView points,best;
     private Button replay,home;
     private SharedPreferencesManager sharedPreferencesManager;
-    private AdMobHandler adMobHandler;
-    private RewardAdCallbacks rewardedAdCallback;
-    private RewardedAdLoadCallbacks loadCallbacks;
-    private boolean isAdClosed ;
+//    private AdMobHandler adMobHandler;
+//    private RewardAdCallbacks rewardedAdCallback;
+//    private RewardedAdLoadCallbacks loadCallbacks;
+//    private boolean isAdClosed ;
     private boolean isRewardAdRequested;
     private RewardItem rewardItem;
     private int currentScore;
+    private FirebaseAnalytics firebaseAnalytics;
+
 
     private FrameLayout progressBar;
     public GameOverScreen(){
@@ -59,7 +62,8 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
         mediaHandler = MediaHandler.getInstance(getContext());
-//        adMobHandler = AdMobHandler.getInstance(getActivity());
+        firebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
+        //        adMobHandler = AdMobHandler.getInstance(getActivity());
 //        adMobHandler.setRewardedAdCallback(rewardedAdCallback);
 //        adMobHandler.setRewardedAdLoadCallback(loadCallbacks);
     }
@@ -76,7 +80,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
 
-//
+
 //        try {
 //
 //            rewardedAdCallback = this;
@@ -91,16 +95,16 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onDetach() {
 
-        rewardedAdCallback = null;
-        loadCallbacks = null;
+//        rewardedAdCallback = null;
+//        loadCallbacks = null;
 
         super.onDetach();
     }
 
     private void initViews(View v) {
 
-        isAdClosed = false;
-        isRewardAdRequested = false;
+//        isAdClosed = false;
+//        isRewardAdRequested = false;
 
         best = v.findViewById(R.id.best);
         points = v.findViewById(R.id.points);
@@ -119,6 +123,14 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
         currentScore = getArguments().getInt(Constants.CURRENT_SCORE,-1);
 
+        if(sharedPreferencesManager.getGamerCount() < 3){
+
+            sharedPreferencesManager.setPreviousScore(currentScore);
+            sharedPreferencesManager.setGamerCount(sharedPreferencesManager.getGamerCount() + 1);
+        }
+        else
+            sharedPreferencesManager.clearGamer();
+
         if(savedInstanceState != null)
             currentScore = savedInstanceState.getInt(Constants.STATE_SCORE);
 
@@ -132,6 +144,8 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
             sharedPreferencesManager.setBestScore(currentScore);
             best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
+
+            firebaseAnalytics.setUserProperty(Constants.USER_PROPERTY_1,String.valueOf(currentScore));
 
         }
 
@@ -223,14 +237,14 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onRewardAddOpen() {
 
-        isAdClosed = false;
+        //isAdClosed = false;
         hideProgressIndi();
     }
 
     @Override
     public void onRewardAddClose() {
 
-        isAdClosed = true;
+//        isAdClosed = true;
 
         if(rewardItem != null){
 

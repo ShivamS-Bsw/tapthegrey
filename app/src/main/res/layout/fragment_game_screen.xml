@@ -68,21 +68,33 @@
         android:id="@+id/button10"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/dimen_4dp"
         android:background="@color/yellow"
         app:layout_constraintTop_toBottomOf="@id/button00"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/button11"
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
+        app:layout_constraintBottom_toTopOf="@id/button_support"/>
     <Button
         android:id="@+id/button11"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/dimen_4dp"
         android:background="@color/green"
         app:layout_constraintTop_toBottomOf="@id/button01"
         app:layout_constraintStart_toEndOf="@id/button10"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:layout_constraintBottom_toTopOf="@id/button_support"/>
+
+    <Button
+        android:id="@+id/button_support"
+        app:layout_constraintTop_toBottomOf="@id/button10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:text="SUPPORT"
+        android:background="@drawable/replay_button"
+        android:layout_height="wrap_content"/>
 
 
 <!--    Working on the countdown timer-->

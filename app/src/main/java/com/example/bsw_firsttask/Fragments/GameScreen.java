@@ -1,12 +1,12 @@
 package com.example.bsw_firsttask.Fragments;
 
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,16 +16,23 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
+import com.example.bsw_firsttask.BuildConfig;
+import com.example.bsw_firsttask.DeviceInfo;
 import com.example.bsw_firsttask.Dialogs.CustomDialog;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
 import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
+import com.example.bsw_firsttask.Screenshot;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 
+import java.io.File;
 import java.util.Random;
 
 // no on pause onStop Override? when you stop your Handler?
@@ -33,7 +40,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     public static final String TAG = GameScreen.class.getSimpleName();
     private TextView scoreTextView;
-    private Button button1,button2,button3,button4;
+    private Button button1,button2,button3,button4,support;
     private Random rand;
     private int currentButton, lastButton;
     private Handler handler;
@@ -41,9 +48,13 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean isButtonClicked;
     private MediaHandler mediaHandler;
     private Runnable runnable;
+
+    private FirebaseAnalytics firebaseAnalytics;
+
     private SharedPreferencesManager preferencesManager;
 
     private Context context;
+    private Bundle params1,params2,params3;
 
     int green = Color.parseColor("#17b978");
     int blue = Color.parseColor("#248bcc");
@@ -100,6 +111,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         if(preferencesManager.checkSavedGame())
             scoreCount = preferencesManager.getSavedScore();
 
+        // Only when in rewarded ad gets rewarded
         if(preferencesManager.checkIsReplayed()){
 
             //Get the replay score and set the score count to replay score
@@ -108,16 +120,66 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             //Clear the current replay score
             preferencesManager.clearReplayGame();
         }
-        scoreTextView.setText(String.valueOf(scoreCount));
 
+
+        scoreTextView.setText(String.valueOf(scoreCount));
+        support.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                email();
+            }
+        });
     }
 
+    private void email(){
+
+        String email = "shivam@bswgames.com";
+        String subject = "Issue in the game";
+        String body = "Feedback: " + "\n"+
+                "Network Type: " + DeviceInfo.getInstance(getActivity()).getNetworkType() + "\n" +
+                "Score: " + scoreCount + "\n" +
+                "Device Info: " + "\n"+
+                DeviceInfo.getInstance(getActivity()).getDeviceInfo();
+
+        try{
+
+
+            File imageFile = Screenshot.getInstance().takeScreenshot(getActivity());
+
+            Intent emailIntent = new Intent(Intent.ACTION_SEND);
+            emailIntent.putExtra(Intent.EXTRA_EMAIL,new String[]{email});
+            emailIntent.putExtra(Intent.EXTRA_SUBJECT,subject);
+            emailIntent.putExtra(Intent.EXTRA_TEXT,body);
+
+            emailIntent.setType("image/*"); // accept any image
+
+            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            Uri uri = null;
+
+            if (getActivity()!= null && imageFile != null)
+                uri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".provider",imageFile);
+
+            if(uri != null)
+                emailIntent.putExtra(Intent.EXTRA_STREAM,uri);
+
+            startActivity(Intent.createChooser(emailIntent, "Send your email in:"));
+
+
+        }catch (Exception e){
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
+    }
     private void initClasses(){
 
+        firebaseAnalytics = FirebaseAnalytics.getInstance(getContext());
         mediaHandler = MediaHandler.getInstance(getContext());
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         handler = new Handler();
         rand = new Random();
+        params1 = new Bundle(); // Event 3 =Game Left
+        params2 = new Bundle(); // Event 4 = Gamae End
+        params3 =  new Bundle(); // Event 2 = Game SAved
 
     }
     private void setButtonListeners() {
@@ -133,7 +195,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         button2= view.findViewById(R.id.button01);
         button3= view.findViewById(R.id.button10);
         button4= view.findViewById(R.id.button11);
-
+        support = view.findViewById(R.id.button_support);
     }
 
     private void startHandler(int delayTime){
@@ -161,6 +223,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
          runnable = new Runnable() {
             @Override
             public void run() {
+
+                showLogs("isButtonClicked" + isButtonClicked);
+
+                showLogs("stopHandler" + mStopHandler);
 
                 // if button not clicked within 1seconds
                 if(!isButtonClicked && !mStopHandler){
@@ -220,7 +286,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                    // automateGame(currentButton);
 
                     if (!mStopHandler) {
-                        handler.postDelayed(this,3000);
+                        handler.postDelayed(this,2000);
                     }
                 }
             }
@@ -230,6 +296,11 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     private void gameOver(int currentScore){
 
+        params2.putInt("score_val",currentScore);
+        firebaseAnalytics.logEvent(Constants.EVENT_4,params2);
+
+        gamer(currentScore);
+
         mediaHandler.playOnGameOver();
 
         //Move to Game Over Screen and pass the params i.e current score
@@ -238,6 +309,21 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         if(getActivity() != null)
             FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.GAMEOVERCREEN_TAG,args,true);
+    }
+
+    private void gamer(int currentScore){
+
+        if(currentScore < preferencesManager.getPreviousScore())
+            preferencesManager.clearGamer();
+
+        if(preferencesManager.getGamerCount() == 3 ){// This is the 3rd time
+
+            if(preferencesManager.getPreviousScore()< currentScore){
+
+                Toast.makeText(getContext(),"Yes!! I'm a Gamer",Toast.LENGTH_SHORT).show();
+                firebaseAnalytics.setUserProperty(Constants.USER_PROPERTY_2,"Gamer");
+            }// Else he is not a gamer
+        }
     }
 
     @Override
@@ -373,11 +459,15 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     // Dialogs positive and negative click methods
     @Override
     public void positive() {
-
         // 1. Save the score in shared preference and set the saved flag to YES
 
-        if(preferencesManager != null)
+        params3.putInt("score",scoreCount);
+        firebaseAnalytics.logEvent(Constants.EVENT_2,params3);
+
+        if(preferencesManager != null){
             preferencesManager.saveGame(scoreCount);
+        }
+
         //2. Move to Home Screen
         moveToHomeScreen();
     }
@@ -385,7 +475,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void moveToHomeScreen(){
 
         if(getFragmentManager()!= null && getFragmentManager().findFragmentByTag(Constants.HOMESCREEN_TAG) instanceof HomeScreen){
-
             FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
 
         }
@@ -415,6 +504,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     @Override
     public void negative() {
 
+        params1.putInt("score_val",scoreCount);
+        firebaseAnalytics.logEvent(Constants.EVENT_3,params1);
+
         if(preferencesManager != null)
             preferencesManager.clearSavedGame();
 
@@ -430,6 +522,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         dialogClosed = true;
     }
 
+    //For Game loop testing
     private void automateGame(int currentButton){
 
         if(scoreCount != 5 ){
@@ -455,7 +548,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         }
     }
 
-
     // Override Dialog Lifecycle Methods
     @Override
     public void OnDialogResume() {
@@ -463,8 +555,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         dialogResumed = true;
         dialogClosed = false;
 
-        showLogs("On Dialog Resume");
+
             if(getActivity() != null && currentFragment) {
+                showLogs("On Dialog Resume");
                 pauseHandler();
         }
     }
@@ -473,7 +566,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     public void OnDialogPause() {
 
         showLogs("on Dialog Paused");
-
         // if it is called in same fragment and dialog is closed - Called after onDismiss
         if(getActivity() != null && dialogClosed && currentFragment  ){
 

@@ -24,6 +24,10 @@ public class SharedPreferencesManager {
     private static final String IS_STATE_SAVED = "state_saved";
     private static final String STATE_SCORE = "state_score";
 
+    private static final String Count = "count";
+    private static final String PREVIOUS_SCORE = "previous_score";
+
+
     private SharedPreferencesManager() {}
 
     public static SharedPreferencesManager getInstance(Context context) {
@@ -32,6 +36,22 @@ public class SharedPreferencesManager {
             editor = sharedPreferences.edit();
         }
         return sharePref;
+    }
+
+    public int getGamerCount(){
+        return sharedPreferences.getInt(Count,0);
+    }
+    public int getPreviousScore(){
+        return sharedPreferences.getInt(PREVIOUS_SCORE,0);
+    }
+
+    public void setGamerCount(int count){
+        editor.putInt(Count,count);
+        editor.commit();
+    }
+    public void setPreviousScore(int score){
+        editor.putInt(PREVIOUS_SCORE,score);
+        editor.commit();
     }
 
     public void saveLocale(String locale){
@@ -101,5 +121,13 @@ public class SharedPreferencesManager {
 
     public int getSavedScore(){
         return sharedPreferences.getInt(SAVED_SCORE,0);
+    }
+
+    public void clearGamer() {
+
+        editor.remove(Count);
+        editor.remove(PREVIOUS_SCORE);
+
+        editor.commit();
     }
 }

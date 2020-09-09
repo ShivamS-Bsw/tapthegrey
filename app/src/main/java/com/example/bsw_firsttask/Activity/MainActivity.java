@@ -29,6 +29,7 @@ import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Locale;
 
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     private NetworkReceiver.ConnectivityReceiverListener connectivityReceiverListener;
     private NetworkReceiver networkReceiver;
     public static boolean isNetworkConnected = true;
+    private FirebaseAnalytics firebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
     private void initClasses() {
         preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+
 //      adMobHandler = AdMobHandler.getInstance(this);
 
   //      exitInterstitialAdCallback = this;
@@ -206,6 +210,12 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         //Save this data in shared pref
         preferencesManager.saveLocale(s);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
     }
 
     @Override
