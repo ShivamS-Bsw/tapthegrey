@@ -220,20 +220,12 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         }.start();
 
     }
-    /**
-     * no null check in callback?
-     *
-     */
 
     private void startMatch(){
 
          runnable = new Runnable() {
             @Override
             public void run() {
-
-                showLogs("isButtonClicked" + isButtonClicked);
-
-                showLogs("stopHandler" + mStopHandler);
 
                 // if button not clicked within 1seconds
                 if(!isButtonClicked && !mStopHandler){
@@ -364,11 +356,15 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         showLogs("On Resume Called");
 
         currentFragment = true;
-        isButtonClicked = true;
-        allowButtonCLick = false;
-        mStopHandler = false;
 
-        startCountDown(3000);
+        if(!dialogResumed && dialogClosed ){
+
+            isButtonClicked = true;
+            allowButtonCLick = false;
+            mStopHandler = false;
+
+            startCountDown(3000);
+        }
     }
 
     @Override
@@ -520,6 +516,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     @Override
     public void onDismiss() {
+
+        dialogResumed = false;
         dialogClosed = true;
     }
 
@@ -565,6 +563,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     @Override
     public void OnDialogPause() {
+
 
         showLogs("on Dialog Paused");
         // if it is called in same fragment and dialog is closed - Called after onDismiss
