@@ -26,6 +26,7 @@ import com.example.bsw_firsttask.Utils.Mail;
 import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 
 
 import java.util.Random;
@@ -43,6 +44,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean isButtonClicked;
     private MediaHandler mediaHandler;
     private Runnable runnable;
+    private FirebaseRemoteConfig firebaseRemoteConfig;
 
     private SharedPreferencesManager preferencesManager;
 
@@ -62,6 +64,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean dialogClosed = true;
     private boolean currentFragment = true;
     private long mLastClickTime = 0;
+    private int maxCountdownTime, gameTime;
 
     public GameScreen(){
 
@@ -96,6 +99,11 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         lastButton = rand.nextInt(4)+1;
         context = getContext();
 
+        if(preferencesManager != null ){
+
+            maxCountdownTime = preferencesManager.getGameStartTime();
+            gameTime = preferencesManager.getGameTime();
+        }
 
         if(preferencesManager.checkSavedGame())
             scoreCount = preferencesManager.getSavedScore();
@@ -161,10 +169,10 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         support = view.findViewById(R.id.button_support);
     }
 
-    private void startCountDown(int maxTimeInSec){
+    private void startCountDown(){
 
         timer.setVisibility(View.VISIBLE);
-        new CountDownTimer(maxTimeInSec,1000){
+        new CountDownTimer(maxCountdownTime,1000){
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -251,7 +259,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
                    // automateGame(currentButton);
 
                     if (!mStopHandler) {
-                        handler.postDelayed(this,1000);
+                        handler.postDelayed(this,gameTime);
                     }
                 }
             }
@@ -329,7 +337,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             allowButtonCLick = false;
             mStopHandler = false;
 
-            startCountDown(3000);
+            startCountDown();
         }
     }
 
@@ -387,7 +395,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         isButtonClicked = true;
         allowButtonCLick = false;
         mStopHandler = false;
-        startCountDown(3000);
+        startCountDown();
     }
 
     public void showDialog(){

@@ -13,9 +13,11 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
@@ -39,8 +41,8 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     private AdMobHandler adMobHandler;
     public static FrameLayout progressLoader;
     private Button crash;
+    private ConstraintLayout home;
     private Bundle params;
-    private String imageUrl = "https://www.tutorialspoint.com/images/tp-logo-diamond.png";
 
     public HomeScreen(){ }
 
@@ -48,13 +50,13 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home,container,false);
-
-//        adMobHandler = AdMobHandler.getInstance(getActivity());
-//        adMobHandler.loadAdView();
-
+        home = view.findViewById(R.id.home_parent);
         params = new Bundle();
+
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
+
+        setBackground();
 
         crash = view.findViewById(R.id.crash);
 
@@ -69,6 +71,14 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         return view;
     }
 
+    private void setBackground(){
+
+        if(preferencesManager.getBG() == 0 ){
+            home.setBackgroundResource(R.color.blue_gray);
+        }
+        else
+            home.setBackgroundResource(0);
+    }
     private void showLogs(String instance_not_null) {
 
         Log.d(TAG,instance_not_null);

@@ -34,5 +34,9 @@ public class Constants {
     public static final String USER_PROPERTY_1 = "best_score";
     public static final String USER_PROPERTY_2 = "gamer";
 
+    public static final String REMOTE_CONFIG_GAME_START_TIME = "game_start_time";
+    public static final String REMOTE_CONFIG_GAME_TIME = "game_time";
+    public static final String REMOTE_CONFIG_BACKGROUND = "bg";
+
 
 }

@@ -3,6 +3,7 @@ package com.example.bsw_firsttask.Activity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestBuilder;
@@ -34,10 +36,13 @@ import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import java.util.Locale;
 
@@ -46,8 +51,9 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     public static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferencesManager preferencesManager;
     private ExitInterstitialAdCallback exitInterstitialAdCallback;
-    private FrameLayout frameLayout;
     public static boolean isAdMobInit = false;
+    private FirebaseRemoteConfig firebaseRemoteConfig;
+    private ConstraintLayout activity;
     //private String imageUrl = "https://i.picsum.photos/id/1018/3914/2935.jpg?hmac=3N43cQcvTE8NItexePvXvYBrAoGbRssNMpuvuWlwMKg";
 
 
@@ -56,10 +62,18 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initViews();
         initClasses();
         initializeAdmMod();
 
-        loadBackground();
+
+        if(firebaseRemoteConfig != null)
+            fetchRemoteConfig();
+
+        if(preferencesManager.getBG() == 1)
+            loadBackground();
+
+       // getFirebaseRegistrationToken();
 
         AdMobHandler.getInstance(MainActivity.this).initAllAds();
 
@@ -78,6 +92,10 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
     }
 
+    private void initViews() {
+        activity = findViewById(R.id.main_parent);
+    }
+
     private void loadBackground() {
 
         Glide.with(this).load(R.drawable.bg_image)
@@ -87,9 +105,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
                 .into(new CustomTarget<Drawable>() {
                     @Override
                     public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
-                        frameLayout.setBackground(resource);
+                        activity.setBackground(resource);
                     }
-
                     @Override
                     public void onLoadCleared(@Nullable Drawable placeholder) {
 
@@ -99,8 +116,62 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
     private void initClasses() {
 
-        frameLayout = findViewById(R.id.frame_container);
+
+        firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(3600)
+                .build();
+        firebaseRemoteConfig.setConfigSettingsAsync(configSettings);
         preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
+
+    }
+
+    private void fetchRemoteConfig(){
+
+        if(firebaseRemoteConfig != null){
+
+            try{
+
+                firebaseRemoteConfig.fetchAndActivate()
+                        .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Boolean> task) {
+
+                                if( task == null || !task.isSuccessful()){
+                                    showLogs("Unable to fetch remote config");
+
+                                    return;
+                                }
+
+                                showLogs("Remote Config Fetch Complete");
+
+                                String gameStartTimeInMillis = firebaseRemoteConfig.getString(Constants.REMOTE_CONFIG_GAME_START_TIME);
+                                String gameTimeInMillis = firebaseRemoteConfig.getString(Constants.REMOTE_CONFIG_GAME_TIME);
+                                String bg = firebaseRemoteConfig.getString(Constants.REMOTE_CONFIG_BACKGROUND);
+
+                                if(preferencesManager != null && gameStartTimeInMillis != null){
+                                    preferencesManager.setGameStartTime(Integer.parseInt(gameStartTimeInMillis));
+
+                                    showLogs("Game Start Time " + gameStartTimeInMillis);
+                                }
+
+                                if(preferencesManager != null && gameTimeInMillis != null){
+                                    preferencesManager.setGameTime(Integer.parseInt(gameTimeInMillis));
+
+                                    showLogs("Game Time " + gameTimeInMillis);
+                                }
+                                if(preferencesManager != null && bg != null){
+
+                                    preferencesManager.setBG(Integer.parseInt(bg));
+                                    showLogs("BG" + bg);
+
+                                }
+                            }
+                        });
+            }catch (Exception e){
+                FirebaseCrashlytics.getInstance().recordException(e);
+            }
+        }
     }
 
     @Override
@@ -111,6 +182,24 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         if (getSupportFragmentManager() != null)
             getSupportFragmentManager().putFragment(outState, "savedInstance", getSupportFragmentManager().findFragmentById(R.id.frame_container));
+    }
+
+    private void getFirebaseRegistrationToken(){
+
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+                        // Get new Instance ID token
+                        String token = task.getResult().getToken();
+
+                        Log.d("Messaging", token);
+                    }
+                });
     }
 
     private void initializeAdmMod() {
@@ -191,7 +280,6 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         } else if (fragment instanceof GameOverScreen) {
 
             ((GameOverScreen)fragment).returnToHomeMenu();
-
         }
     }
 

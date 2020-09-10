@@ -6,9 +6,11 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.bsw_firsttask.Constants.Constants;
@@ -21,7 +23,8 @@ import com.google.firebase.crashlytics.internal.common.CrashlyticsCore;
 public class SplashScreen extends Fragment {
 
     private SharedPreferencesManager preferencesManager;
-
+    private ConstraintLayout splash;
+    private TextView textView;
     public SplashScreen(){
 
     }
@@ -30,8 +33,28 @@ public class SplashScreen extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_splash,container,false);
+
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
+        textView = view.findViewById(R.id.textView);
+        splash = view.findViewById(R.id.splash_parent);
+
+        setBackground();
+
         return view;
+    }
+
+    private void setBackground(){
+
+        if(preferencesManager.getBG() == 0 ){
+            splash.setBackgroundResource(R.color.white);
+            textView.setTextColor(getResources().getColor(R.color.black));
+        }
+
+        else{
+            splash.setBackgroundResource(0);
+            textView.setTextColor(getResources().getColor(R.color.white));
+        }
+
     }
 
     @Override

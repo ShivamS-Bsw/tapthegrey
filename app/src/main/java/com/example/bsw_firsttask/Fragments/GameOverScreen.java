@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
@@ -43,22 +44,32 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private LottieAnimationView lottieAnimationView;
     private FrameLayout progressBar;
     public GameOverScreen(){ }
-
+    private ConstraintLayout gameOver;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_over,container,false);
 
+        sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
+        gameOver = view.findViewById(R.id.game_over_parent);
+
+
+        setBackground();
         initViews(view);
         return view;
     }
 
+    private void setBackground(){
+
+        if(sharedPreferencesManager.getBG() == 0 )
+            gameOver.setBackgroundResource(R.color.white);
+        else
+            gameOver.setBackgroundResource(0);
+    }
+
     private void initClasses(){
-
-        sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
-        mediaHandler = MediaHandler.getInstance(getContext());
-
+         mediaHandler = MediaHandler.getInstance(getContext());
         AdMobHandler.getInstance(getActivity()).setRewardedAdCallback(rewardedAdCallback);
     }
 

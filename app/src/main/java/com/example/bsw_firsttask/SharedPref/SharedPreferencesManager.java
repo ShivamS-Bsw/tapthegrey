@@ -21,12 +21,13 @@ public class SharedPreferencesManager {
     private static final String LOCALE = "locale";
     private static final String IS_REPLAYED = "isReplayed";
     private static final String REPLAY_GAME_SCORE = "replay_game_score";
-    private static final String IS_STATE_SAVED = "state_saved";
-    private static final String STATE_SCORE = "state_score";
-
     private static final String Count = "count";
     private static final String PREVIOUS_SCORE = "previous_score";
 
+    // Remote Config Values
+    private static final String GAME_START_TIME = "game_start_time";
+    private static final String GAME_TIME = "game_time";
+    private static final String BG = "bg";
 
     private SharedPreferencesManager() {}
 
@@ -38,6 +39,35 @@ public class SharedPreferencesManager {
         return sharePref;
     }
 
+
+    public void setBG(int i){
+        editor.putInt(BG,i);
+        editor.apply();
+    }
+
+    public int getBG(){
+        return sharedPreferences.getInt(BG,0);
+    }
+
+    public void setGameStartTime(int timeInMillisecond){
+        editor.putInt(GAME_START_TIME,timeInMillisecond);
+        editor.apply();
+    }
+
+
+    public void setGameTime(int timeInMillisecond){
+        editor.putInt(GAME_TIME,timeInMillisecond);
+        editor.apply();
+    }
+
+    public int getGameTime(){
+        return sharedPreferences.getInt(GAME_TIME,1000);
+    }
+
+    public int getGameStartTime(){
+        return sharedPreferences.getInt(GAME_START_TIME,3000);
+    }
+
     public int getGamerCount(){
         return sharedPreferences.getInt(Count,0);
     }
@@ -47,17 +77,17 @@ public class SharedPreferencesManager {
 
     public void setGamerCount(int count){
         editor.putInt(Count,count);
-        editor.commit();
+        editor.apply();
     }
     public void setPreviousScore(int score){
         editor.putInt(PREVIOUS_SCORE,score);
-        editor.commit();
+        editor.apply();
     }
 
     public void saveLocale(String locale){
 
         editor.putString(LOCALE,locale);
-        editor.commit();
+        editor.apply();
     }
 
     public String getLocale(){
@@ -69,11 +99,11 @@ public class SharedPreferencesManager {
 
     public  void setBestScore(int newValue) {
         editor.putInt(KEY_BEST , newValue);
-        editor.commit();
+        editor.apply();
     }
     public void clearAll() {
         editor.clear();
-        editor.commit();
+        editor.apply();
     }
 
     public void saveGame(int score){
