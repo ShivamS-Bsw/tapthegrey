@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
 import com.example.bsw_firsttask.Constants.Constants;
@@ -39,7 +40,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private boolean isRewardAdRequested;
     private RewardItem rewardItem;
     private int currentScore;
-
+    private LottieAnimationView lottieAnimationView;
     private FrameLayout progressBar;
     public GameOverScreen(){ }
 
@@ -100,6 +101,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         replay = v.findViewById(R.id.replay_btn);
         home = v.findViewById(R.id.home_btn);
         progressBar = v.findViewById(R.id.progress_indicator_game_over);
+        lottieAnimationView = v.findViewById(R.id.animation);
     }
 
     @Override
@@ -130,6 +132,8 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         points.setText(String.valueOf(currentScore));
 
         if(currentScore >= sharedPreferencesManager.getBestScore()){
+
+            lottieAnimationView.playAnimation();
 
             sharedPreferencesManager.setBestScore(currentScore);
             best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
@@ -250,6 +254,12 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     private void showToast(String msg){
         Toast.makeText(getContext(),msg,Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        lottieAnimationView.destroyDrawingCache();
     }
 
     @Override

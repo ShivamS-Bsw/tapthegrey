@@ -3,69 +3,77 @@ package com.example.bsw_firsttask.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
-
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.ref.WeakReference;
 
-public class Screenshot  {
+public class Screenshot extends AsyncTask<Void,Void,File>{
 
+    public AsyncResponse delegate = null;
+    private WeakReference<Activity> activityReference;
+    private Bitmap bitmap;
+    private File imageFile;
 
-    private static Screenshot screenshot;
-    private Screenshot(){
+    Screenshot(Activity activity,AsyncResponse response){
+        activityReference = new WeakReference<>(activity);
+        this.delegate = response;
     }
 
-    public static Screenshot getInstance(){
-        return screenshot == null ? new Screenshot() : screenshot;
-    }
+    @Override
+    protected void onPreExecute() {
 
-    public File takeScreenshot(Activity activity) {
+        if(activityReference != null){
 
-        File imageFile;
-
-        if(activity != null){
-
-            View v = activity.getWindow().getDecorView().getRootView();
+            View v = activityReference.get().getWindow().getDecorView().getRootView();
             v.setDrawingCacheEnabled(true);
             v.buildDrawingCache(true);
-            Bitmap bitmap = Bitmap.createBitmap(v.getDrawingCache());
+            bitmap = Bitmap.createBitmap(v.getDrawingCache());
             v.setDrawingCacheEnabled(false);
 
-            if(bitmap != null){
-                imageFile = saveImageToExternalStorage(activity.getApplicationContext(),bitmap);
-                return imageFile;
-            }
+        }
     }
+
+    @Override
+    protected File doInBackground(Void... voids) {
+
+        if(activityReference != null){
+
+            long n  = System.currentTimeMillis() / 1000L;
+            String fname = "image-" + n + ".jpg";
+            imageFile = new File(activityReference.get().getApplicationContext().getExternalFilesDir(null), fname);
+
+            try {
+
+                FileOutputStream out = new FileOutputStream(imageFile);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+
+                out.flush();
+                out.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                FirebaseCrashlytics.getInstance().recordException(e);
+            }
+            return imageFile;
+        }
         return null;
     }
 
-    private File saveImageToExternalStorage(Context context, Bitmap finalBitmap) {
+    @Override
+    protected void onPostExecute(File file) {
 
-
-        long n  = System.currentTimeMillis() / 1000L;
-        String fname = "image-" + n + ".jpg";
-
-
-        File file = new File(context.getExternalFilesDir(null), fname);
-
-        Log.d("Screenshot",file.getAbsolutePath());
-
-        try {
-
-            FileOutputStream out = new FileOutputStream(file);
-            finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
-
-            out.flush();
-            out.close();
+        if(activityReference != null && activityReference.get()!= null && imageFile != null){
+            delegate.processFinish(imageFile);
+        }else{
+            delegate.processFinish(null);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            FirebaseCrashlytics.getInstance().recordException(e);
-        }
+    }
 
-        return file;
+    public interface AsyncResponse {
+        void processFinish(File output);
     }
 }

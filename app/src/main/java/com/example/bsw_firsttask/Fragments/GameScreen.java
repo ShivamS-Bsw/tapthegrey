@@ -55,7 +55,6 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     int red = Color.parseColor("#ffa010");
     int grey = Color.parseColor("#cdd5d5");
 
-
     private int scoreCount;
     private boolean allowButtonCLick;
     private CustomDialog dialog;
@@ -130,6 +129,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     private void email(){
 
+        pauseHandler();
         Mail.getInstance(getActivity()).sendEmail(scoreCount);
 
     }

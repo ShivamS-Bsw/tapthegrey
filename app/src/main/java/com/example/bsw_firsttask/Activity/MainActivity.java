@@ -1,18 +1,26 @@
 package com.example.bsw_firsttask.Activity;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.content.res.Configuration;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.BuildConfig;
 import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
@@ -38,7 +46,9 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     public static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferencesManager preferencesManager;
     private ExitInterstitialAdCallback exitInterstitialAdCallback;
+    private FrameLayout frameLayout;
     public static boolean isAdMobInit = false;
+    //private String imageUrl = "https://i.picsum.photos/id/1018/3914/2935.jpg?hmac=3N43cQcvTE8NItexePvXvYBrAoGbRssNMpuvuWlwMKg";
 
 
     @Override
@@ -48,6 +58,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         initClasses();
         initializeAdmMod();
+
+        loadBackground();
 
         AdMobHandler.getInstance(MainActivity.this).initAllAds();
 
@@ -63,9 +75,31 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         if (BuildConfig.FLAVOR.equals("paid"))
             loadLocale();
+
+    }
+
+    private void loadBackground() {
+
+        Glide.with(this).load(R.drawable.bg_image)
+                .placeholder(R.color.blue_gray)
+                .centerCrop()
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .into(new CustomTarget<Drawable>() {
+                    @Override
+                    public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                        frameLayout.setBackground(resource);
+                    }
+
+                    @Override
+                    public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                    }
+                });
     }
 
     private void initClasses() {
+
+        frameLayout = findViewById(R.id.frame_container);
         preferencesManager = SharedPreferencesManager.getInstance(getApplicationContext());
     }
 

@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Handler;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
@@ -14,11 +17,14 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Mail {
 
-
+    private File imageFile = null ;
     private static Mail mail;
+    private Uri uri = null;
+    private Intent emailIntent;
     private static WeakReference<Activity> activityWeakReference = null;
 
     private Mail(){
@@ -54,37 +60,42 @@ public class Mail {
 
             try{
 
-                File imageFile = Screenshot.getInstance().takeScreenshot(getActivityRef());
-
-                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                emailIntent = new Intent(Intent.ACTION_SEND);
                 emailIntent.putExtra(Intent.EXTRA_EMAIL,new String[]{email});
                 emailIntent.putExtra(Intent.EXTRA_SUBJECT,subject);
                 emailIntent.putExtra(Intent.EXTRA_TEXT,body);
-
                 emailIntent.setType("image/*"); // accept any image
                 emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 
-                Uri uri = null;
 
-                if (imageFile != null)
-                    uri = FileProvider.getUriForFile(getActivityRef(), BuildConfig.APPLICATION_ID + ".provider",imageFile);
+                new Screenshot(getActivityRef(), new Screenshot.AsyncResponse() {
+                    @Override
+                    public void processFinish(File output) {
+                        imageFile = output;
+                    }
+                }).execute();
 
-                if(uri != null)
-                    emailIntent.putExtra(Intent.EXTRA_STREAM,uri);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
 
-                PackageManager pm = getActivityRef().getPackageManager();
-                List<ResolveInfo> matches = pm.queryIntentActivities(emailIntent, 0);
-                ResolveInfo best = null;
+                        if (imageFile != null){
 
-                for(ResolveInfo info : matches)
-                    if (info.activityInfo.packageName.endsWith(".gm") || info.activityInfo.name.toLowerCase().contains("gmail"))
-                        best = info;
+                            uri = FileProvider.getUriForFile(getActivityRef(), BuildConfig.APPLICATION_ID + ".provider",imageFile);
+                            if(uri != null)
+                                emailIntent.putExtra(Intent.EXTRA_STREAM,uri);
 
+                        }else
+                            Toast.makeText(getActivityRef().getApplicationContext(),"Error Taking Screenshot",Toast.LENGTH_SHORT).show();
 
-                if (best != null)
-                    emailIntent.setClassName(best.activityInfo.packageName, best.activityInfo.name);
+                        ResolveInfo resolveInfo = getPakageInfo(emailIntent);
+                        if (resolveInfo != null)
+                            emailIntent.setClassName(resolveInfo.activityInfo.packageName, resolveInfo.activityInfo.name);
 
-                getActivityRef().startActivity(emailIntent);
+                        getActivityRef().startActivity(emailIntent);
+
+                    }
+                },500);
 
             }catch (Exception e){
                 FirebaseCrashlytics.getInstance().recordException(e);
@@ -92,4 +103,19 @@ public class Mail {
         }
     }
 
+    private ResolveInfo getPakageInfo(Intent intent){
+        ResolveInfo best = null;
+
+        if(getActivityRef() != null){
+            PackageManager pm = getActivityRef().getPackageManager();
+            List<ResolveInfo> matches = pm.queryIntentActivities(intent, 0);
+
+
+            for(ResolveInfo info : matches)
+                if (info.activityInfo.packageName.endsWith(".gm") || info.activityInfo.name.toLowerCase().contains("gmail"))
+                    best = info;
+        }
+
+        return best;
+    }
 }

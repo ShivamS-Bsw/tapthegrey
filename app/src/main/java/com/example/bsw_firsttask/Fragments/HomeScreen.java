@@ -40,7 +40,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     public static FrameLayout progressLoader;
     private Button crash;
     private Bundle params;
-    private ImageView bgImage;
     private String imageUrl = "https://www.tutorialspoint.com/images/tp-logo-diamond.png";
 
     public HomeScreen(){ }
@@ -96,7 +95,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         locale = view.findViewById(R.id.locale);
         playButton = view.findViewById(R.id.btnPlay);
         progressLoader = view.findViewById(R.id.progress_indicator_homescreen);
-        bgImage = view.findViewById(R.id.backgroundImage);
     }
 
     public static void showLoader(){
@@ -113,10 +111,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        Glide.with(this).load(imageUrl)
-//                .error()  // Can also mention the error image
-                .into(bgImage);
 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
