@@ -22,6 +22,7 @@ public class SharedPreferencesManager {
     private static final String IS_REPLAYED = "isReplayed";
     private static final String REPLAY_GAME_SCORE = "replay_game_score";
     private static final String Count = "count";
+    private static final String exitInterstitialAdInterval = "exitInterstitialAdInterval";
     private static final String PREVIOUS_SCORE = "previous_score";
 
     // Remote Config Values
@@ -38,6 +39,7 @@ public class SharedPreferencesManager {
         }
         return sharePref;
     }
+
 
 
     public void setBG(int i){

@@ -13,10 +13,8 @@ import androidx.annotation.NonNull;
 import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
 import com.example.bsw_firsttask.Callbacks.NativeAdCallback;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
-import com.example.bsw_firsttask.Callbacks.RewardedAdLoadCallbacks;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.R;
-import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
@@ -65,7 +63,8 @@ public class AdMobHandler {
         if(getActivityRef() != null){
 
 //            loadAdView();
-//            initExitInterstitialAd();
+            initExitInterstitialAd();
+            loadNativeAd();
             initRewardedAd();
         }
     }
@@ -159,7 +158,7 @@ public class AdMobHandler {
 
     public void loadNativeAd(){
 
-        final Activity activity = getActivityRef();
+        Activity activity = getActivityRef();
         if(activity != null){
 
             nativeHandler = new Handler();
@@ -170,18 +169,7 @@ public class AdMobHandler {
                 @Override
                 public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAds) {
 
-
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds);
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getCallToAction());
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getExtras());
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getAdvertiser());
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getMediationAdapterClassName());
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getStore());
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getIcon());
-                        Log.e("UnifiedNativeAd", " " + unifiedNativeAds.getStarRating());
-
-               // Add a callback and pass the value to dialog fragment
-                        setUnifiedNativeAd(unifiedNativeAds);
+                    setUnifiedNativeAd(unifiedNativeAds);
                 }
             });
 
@@ -194,18 +182,12 @@ public class AdMobHandler {
 
                 @Override
                 public void onAdOpened() {
-
                     Log.i("Native Ad","Ad Opened");
-                    if(nativeAdCallback!=null)
-                        nativeAdCallback.onAdOpen();
                 }
                 @Override
                 public void onAdLoaded() {
 
                     Log.i("Native Ad","Ad Loaded");
-                    if(nativeAdCallback!=null)
-                        nativeAdCallback.onAdLoaded();
-
                     if (nativeHandler != null)
                             nativeHandler.postDelayed(nativeRunnable, 1000 * 60);
                 }
@@ -213,8 +195,7 @@ public class AdMobHandler {
                 public void onAdFailedToLoad(int errorCode) {
 
                     Log.i("Native Ad","Ad Failed to Load");
-                    if(nativeAdCallback!=null)
-                        nativeAdCallback.onAdFailedToLoad();
+
                     if (nativeHandler != null)
                             nativeHandler.postDelayed(nativeRunnable, 1000 * 60);
                 }
@@ -222,6 +203,7 @@ public class AdMobHandler {
                 public void onAdClicked() {
 
                     Log.d("UnifiedNativeAd", "onAdClicked: ");
+
                     if (nativeHandler != null)
                             nativeHandler.removeCallbacks(nativeRunnable);
                 }
@@ -239,9 +221,6 @@ public class AdMobHandler {
         }
     }
 
-    /**
-     * you only remove callwhen  i only click on ad what if i leave the screen.
-     */
     Runnable nativeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -250,9 +229,6 @@ public class AdMobHandler {
         }
     };
 
-    /**
-     * when you again try to send request if you alredy show reward ads?
-     */
 
     public void initRewardedAd(){
 
@@ -277,7 +253,7 @@ public class AdMobHandler {
         }
 
     }
-    public void initExitInterstitialAd(){
+    private void initExitInterstitialAd(){
 
         Activity activity = getActivityRef();
 
@@ -291,18 +267,15 @@ public class AdMobHandler {
                 public void onAdOpened() {
                     super.onAdOpened();
                     showLogs("Interstitial Ad Opened");
-                    if(exitInterstitialAdCallback!=null)
-                        exitInterstitialAdCallback.onAdOpen();
                 }
 
                 @Override
                 public void onAdClosed() {
 
-                    showLogs("Interstitial Ad Closed");
-                    if(exitInterstitialAd != null){
+                    if(exitInterstitialAdCallback != null)
                         exitInterstitialAdCallback.onAdClosed();
-                    }
 
+                    showLogs("Interstitial Ad Closed");
                     requestExitInterstitial();
                 }
 
@@ -310,19 +283,12 @@ public class AdMobHandler {
                 public void onAdLoaded() {
                     super.onAdLoaded();
                     showLogs("Interstitial Ad Loaded");
-                    if(exitInterstitialAd != null) {
-                        exitInterstitialAdCallback.onLoadingCompleted();
-                    }
                 }
 
                 @Override
                 public void onAdFailedToLoad(LoadAdError loadAdError) {
                     super.onAdFailedToLoad(loadAdError);
-
                     showLogs("Interstitial Ad Failed to Load "+ loadAdError);
-                    if(exitInterstitialAd != null) {
-                        exitInterstitialAdCallback.onLoadingFailed();
-                    }
                 }
             });
 
@@ -345,14 +311,6 @@ public class AdMobHandler {
         return builder.build();
     }
 
-    public boolean isExitInterstitialLoaded(){
-
-        if (exitInterstitialAd != null && !exitInterstitialAd.isLoaded() && !exitInterstitialAd.isLoading()) {
-            return false;
-        }
-        return true;
-    }
-
     public boolean showRewardedAd(){
 
         Activity activityContext = getActivityRef();
@@ -363,16 +321,10 @@ public class AdMobHandler {
 
                 RewardedAdCallback adCallback = new RewardedAdCallback() {
                     @Override
-                    public void onRewardedAdOpened() {
-                        if(rewardedAdCallback != null)
-                            rewardedAdCallback.onRewardAddOpen();
-                    }
-                    @Override
                     public void onRewardedAdClosed() {
 
                         if(rewardedAdCallback != null)
                             rewardedAdCallback.onRewardAddClose();
-
                         initRewardedAd();
                     }
                     @Override
@@ -380,40 +332,37 @@ public class AdMobHandler {
                         if(rewardedAdCallback != null)
                             rewardedAdCallback.onRewardAddEarnedItem(reward);
                     }
-                    @Override
-                    public void onRewardedAdFailedToShow(AdError adError) {
-                        if(rewardedAdCallback != null)
-                            rewardedAdCallback.onRewardAddFailedtoLoad(adError);
-                    }
                 };
-                rewardedAd.show(activityContext,adCallback);
 
+                rewardedAd.show(activityContext,adCallback);
                 return true;
+
             }else{
                 initRewardedAd();
+
+                return false;
             }
         }
         return false;
     }
 
-    public void showExitIntAd(){
+    public boolean showExitIntAd(){
 
         Activity activity = getActivityRef();
 
         if(activity != null) {
 
             if (exitInterstitialAd != null && exitInterstitialAd.isLoaded()) {
-
                 exitInterstitialAd.show();
+                return true;
 
-            } else {
-                if (exitInterstitialAd != null && !exitInterstitialAd.isLoaded() && !exitInterstitialAd.isLoading()) {
+            } else if (exitInterstitialAd != null && !exitInterstitialAd.isLoaded() && !exitInterstitialAd.isLoading()) {
                     requestExitInterstitial();
-                }
-            }
-        }
-    }
 
+                    return false;
+            }
+        }return false;
+    }
 
     public void setExitInterstitialAdCallback(ExitInterstitialAdCallback exitInterstitialAdCallback) {
         this.exitInterstitialAdCallback = exitInterstitialAdCallback;
@@ -444,10 +393,6 @@ public class AdMobHandler {
         this.rewardedAdCallback = rewardedAdCallback;
     }
 
-    public void setNativeAdCallback(NativeAdCallback nativeAdCallback) {
-        this.nativeAdCallback = nativeAdCallback;
-    }
-
     public UnifiedNativeAd getUnifiedNativeAd() {
         return unifiedNativeAd;
     }
@@ -459,10 +404,27 @@ public class AdMobHandler {
         Log.d("AdHandler",msg);
     }
 
+
+    public void onResume(){
+
+        if(adView != null)
+            adView.resume();
+
+        if(nativeHandler == null ){
+            nativeHandler = new Handler();
+            nativeHandler.post(nativeRunnable);
+        }
+    }
+
     public void onPause() {
 
         if(adView != null)
             adView.pause();
+
+        if (nativeHandler != null) {
+            nativeHandler.removeCallbacks(nativeRunnable);
+            nativeHandler = null;
+        }
     }
     public void onClose(){
 

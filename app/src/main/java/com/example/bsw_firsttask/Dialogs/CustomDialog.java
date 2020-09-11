@@ -1,6 +1,5 @@
 package com.example.bsw_firsttask.Dialogs;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -14,14 +13,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
-import com.example.bsw_firsttask.Callbacks.NativeAdCallback;
 import com.example.bsw_firsttask.Fragments.GameScreen;
 import com.example.bsw_firsttask.R;
 import com.google.android.gms.ads.formats.MediaView;
@@ -29,7 +26,7 @@ import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-public class CustomDialog extends DialogFragment implements View.OnClickListener, NativeAdCallback {
+public class CustomDialog extends DialogFragment implements View.OnClickListener {
 
     private TextView textView;
     private int dialogTitle;
@@ -40,9 +37,7 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
     private UnifiedNativeAdView unifiedNativeAdView;
     private LinearLayout linearLayout;
     private UnifiedNativeAd unifiedNativeAd;
-    private AdMobHandler adMobHandler;
     private static final String TAG = CustomDialog.class.getSimpleName();
-    private NativeAdCallback nativeAdCallback;
     private DialogLifecycleListener lifecycleListener;
 
 
@@ -63,7 +58,7 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
 
         initViews(view);
 
-        if(context != null && getContext().getResources() != null){
+        if(context != null && getActivity() != null ){
 
             textView.setText(context.getResources().getText(dialogTitle));
             positive.setText(getContext().getResources().getText(R.string.yes));
@@ -76,14 +71,12 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
             textView.setText(title);
         }
 
-        adMobHandler = AdMobHandler.getInstance(getActivity());
-        adMobHandler.setNativeAdCallback(nativeAdCallback);
+
 
         getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
-        //test();
-
+        showNativeAd();
         return view;
     }
 
@@ -124,19 +117,21 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
             lifecycleListener.onDismiss();
     }
 
-    private void test(){
+    private void showNativeAd(){
 
-        unifiedNativeAdView = (UnifiedNativeAdView) getActivity().getLayoutInflater().inflate(R.layout.native_ad_layout,null);
+        if(getActivity() != null) {
 
-        unifiedNativeAd = adMobHandler.getUnifiedNativeAd();
+            unifiedNativeAdView = (UnifiedNativeAdView) getActivity().getLayoutInflater().inflate(R.layout.native_ad_layout,null);
+            unifiedNativeAd = AdMobHandler.getInstance(getActivity()).getUnifiedNativeAd();
 
-        Log.i("Custom Dialog","  " + unifiedNativeAd);
+            Log.i("Custom Dialog","  " + unifiedNativeAd);
 
-        Log.i("Custom Dialog","  " + unifiedNativeAdView);
+            Log.i("Custom Dialog","  " + unifiedNativeAdView);
 
 
-        if(unifiedNativeAd != null && unifiedNativeAdView != null)
-            populateNativeAdView(unifiedNativeAd,unifiedNativeAdView);
+            if(unifiedNativeAd != null && unifiedNativeAdView != null)
+                populateNativeAdView(unifiedNativeAd,unifiedNativeAdView);
+        }
     }
 
     private void populateNativeAdView(UnifiedNativeAd unifiedNativeAd, UnifiedNativeAdView adView){
@@ -184,13 +179,11 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         }
 
         adView.setNativeAd(unifiedNativeAd);
-
         linearLayout.addView(adView);
 
         if(getTargetFragment() instanceof GameScreen)
             linearLayout.setVisibility(View.VISIBLE);
     }
-
 
     private void initViews(View view){
 
@@ -291,31 +284,6 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         listener = null;
         lifecycleListener = null;
         super.onDetach();
-    }
-
-    @Override
-    public void nativeAd(UnifiedNativeAd unifiedNativeAd) {
-        this.unifiedNativeAd = unifiedNativeAd;
-    }
-
-    @Override
-    public void onAdOpen() {
-
-    }
-
-    @Override
-    public void onAdClosed() {
-
-    }
-
-    @Override
-    public void onAdLoaded() {
-
-    }
-
-    @Override
-    public void onAdFailedToLoad() {
-
     }
 
     public interface DialogListener{

@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -46,16 +47,16 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements ExitInterstitialAdCallback{
+public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = MainActivity.class.getSimpleName();
     private SharedPreferencesManager preferencesManager;
     private ExitInterstitialAdCallback exitInterstitialAdCallback;
     public static boolean isAdMobInit = false;
     private FirebaseRemoteConfig firebaseRemoteConfig;
+    private long lastInterstitialShown = 0;
     private ConstraintLayout activity;
     //private String imageUrl = "https://i.picsum.photos/id/1018/3914/2935.jpg?hmac=3N43cQcvTE8NItexePvXvYBrAoGbRssNMpuvuWlwMKg";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,9 +163,11 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
                                     showLogs("Game Time " + gameTimeInMillis);
                                 }
-                                if(preferencesManager != null && bg != null){
 
+                                int intBG = Integer.parseInt(bg);
+                                if(preferencesManager != null && preferencesManager.getBG() != intBG){
                                     preferencesManager.setBG(Integer.parseInt(bg));
+                                    //recreate();
                                     showLogs("BG" + bg);
 
                                 }
@@ -222,20 +225,22 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     protected void onResume() {
 
         super.onResume();
-
         MediaHandler.getInstance(this);
-
         View decorView = getWindow().getDecorView();
         hideNavigationAndStatusBar(decorView);
         hideNavigationAndStatusBarListener(decorView);
+
+        AdMobHandler.getInstance(this).onResume();
 
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
+        showLogs("onPause");
         AdMobHandler.getInstance(this).onPause();
+
+        overridePendingTransition(android.R.anim.slide_in_left,0);
     }
 
     //   Method to Hide and Show the Navigation and Status Bar Listener
@@ -254,10 +259,6 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
     private void hideNavigationAndStatusBar(View decorView) {
 
-
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-//            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-//        }
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -306,6 +307,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
     @Override
     protected void onStop() {
+
+        showLogs("onStop");
         super.onStop();
 
     }
@@ -318,34 +321,36 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
         AdMobHandler.getInstance(this).onClose();
     }
 
+    public boolean showExitInterstitialAd(){
+
+        if(AdMobHandler.getInstance(this).showExitIntAd()){
+            setLastInterstitialShown(System.currentTimeMillis());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean showRewardedVideoAd(){
+
+        if(AdMobHandler.getInstance(this).showRewardedAd())
+            return true;
+        return false;
+    }
+
     public void finishActivity() {
         MainActivity.this.finish();
     }
 
-    @Override
-    public void onAdOpen() {
-        HomeScreen.hideLoader();
-    }
-
-    @Override
-    public void onAdClosed() {
-
-        showLogs("Exit Int Ad Closed");
-        finishActivity();
-    }
-
-    @Override
-    public void onLoadingCompleted() {
-        showLogs("Exit Int Ad Loaded");
-    }
-
-    @Override
-    public void onLoadingFailed() {
-        showLogs("Exit Int Ad Loading failed");
-    }
-
     private void showLogs(String log) {
         Log.d(TAG, log);
+    }
+
+    public long getLastInterstitialShown() {
+        return lastInterstitialShown;
+    }
+
+    public void setLastInterstitialShown(long lastInterstitialShown) {
+        this.lastInterstitialShown = lastInterstitialShown;
     }
 
 }

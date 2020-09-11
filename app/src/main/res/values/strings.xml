@@ -17,4 +17,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="mail_us">Mail Us</string>
+    <string name="exit">Are you sure want to exit?</string>
 </resources>

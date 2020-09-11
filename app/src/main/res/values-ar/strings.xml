@@ -19,4 +19,5 @@
     <string name="yes">نعم</string>
     <string name="no">لا</string>
     <string name="mail_us">البريد لنا</string>
+    <string name="exit">Are you want to exit</string>
 </resources>

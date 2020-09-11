@@ -8,7 +8,7 @@ android {
         applicationId "com.example.bsw_firsttask"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 32
+        versionCode 42
         versionName '3.2'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

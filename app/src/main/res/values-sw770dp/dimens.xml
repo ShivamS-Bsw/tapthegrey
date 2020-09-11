@@ -18,5 +18,6 @@
     <dimen name="dimen_28dp">67.4dp</dimen>
     <dimen name="dimen_200dp">481.3dp</dimen>
     <dimen name="timer_text">240sp</dimen>
+    <dimen name="dimen_250dp">600dp</dimen>
 
 </resources>

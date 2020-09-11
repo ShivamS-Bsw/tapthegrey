@@ -8,17 +8,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.bsw_firsttask.Activity.MainActivity;
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
 import com.example.bsw_firsttask.Constants.Constants;
@@ -45,7 +45,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private int currentScore;
     private LinearLayout animationLayout;
     private LottieAnimationView lottieAnimationView;
-    private FrameLayout progressBar;
+    private ProgressBar progressBar;
     public GameOverScreen(){ }
 
     @Nullable
@@ -89,7 +89,6 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
 
         try {
-
             rewardedAdCallback = this;
 
         }catch (ClassCastException e){
@@ -112,7 +111,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         points = v.findViewById(R.id.points);
         replay = v.findViewById(R.id.replay_btn);
         home = v.findViewById(R.id.home_btn);
-        progressBar = v.findViewById(R.id.progress_indicator_game_over);
+        progressBar = v.findViewById(R.id.ad_loader);
         animationLayout = v.findViewById(R.id.animation_layout);
     }
 
@@ -191,17 +190,8 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         if(v.getId() == R.id.replay_btn){
 
-            rewardItem = null;
-
-            if(AdMobHandler.getInstance(getActivity()).showRewardedAd()){
-                isRewardAdRequested = true;
-                showProgressIndicator();
-
-            }else{
-
-                isRewardAdRequested = false;
+            if(!showReplayAd() )
                 returnToGameScreen();
-            }
 
         }else if(v.getId() == R.id.home_btn ){
             returnToHomeMenu();
@@ -210,6 +200,11 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     private void returnToGameScreen(){
         FactoryClass.moveToPreviousScreen(getFragmentManager(),null);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 
     public void returnToHomeMenu(){
@@ -223,30 +218,31 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
             FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.HOMESCREEN_TAG,null,true);
     }
 
-    private void hideProgressIndicator(){
+    private void hideAdLoader(){
 
         if(progressBar != null)
             progressBar.setVisibility(View.GONE);
     }
 
-    private void showProgressIndicator(){
+    private boolean showAdLoader(){
 
-        if(progressBar != null)
+        if(progressBar != null){
+
             progressBar.setVisibility(View.VISIBLE);
+            return true;
+        }
+        return false;
     }
 
-    @Override
-    public void onRewardAddOpen() {
-        hideProgressIndicator();
-    }
 
     @Override
     public void onRewardAddClose() {
 
+        hideAdLoader();
+
         if(rewardItem != null){
             sharedPreferencesManager.saveReplay(currentScore);
         }
-
         returnToGameScreen();
     }
 
@@ -255,15 +251,6 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         this.rewardItem = rewardItem;
         showToast("Congrats. You get rewarded with " + rewardItem.getAmount() + "points");
-    }
-
-    @Override
-    public void onRewardAddFailedtoLoad(AdError error) {
-
-        hideProgressIndicator();
-        returnToGameScreen();
-
-        showLogs("on Reward Failed to Load");
     }
 
     private void showLogs(String log){
@@ -287,12 +274,16 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onPause() {
         super.onPause();
+        showLogs("On Pause Called");
+    }
 
-        if(isRewardAdRequested){
+    private boolean showReplayAd(){
 
-            showLogs("On Pause Called");
+        if(getActivity() != null){
 
-            getActivity().overridePendingTransition(android.R.anim.slide_in_left,0);
+            return ((MainActivity)getActivity()).showRewardedVideoAd()
+                    && showAdLoader();
         }
+        return false;
     }
 }
