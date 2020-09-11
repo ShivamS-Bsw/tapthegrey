@@ -46,12 +46,10 @@ public class SplashScreen extends Fragment {
     private void setBackground(){
 
         if(preferencesManager.getBG() == 0 ){
-            splash.setBackgroundResource(R.color.white);
             textView.setTextColor(getResources().getColor(R.color.black));
         }
 
         else{
-            splash.setBackgroundResource(0);
             textView.setTextColor(getResources().getColor(R.color.white));
         }
 

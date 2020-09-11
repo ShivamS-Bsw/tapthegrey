@@ -6,12 +6,14 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.core.content.FileProvider;
 
 import com.example.bsw_firsttask.BuildConfig;
+import com.example.bsw_firsttask.R;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.io.File;
@@ -58,6 +60,7 @@ public class Mail {
                     "Device Info: " + "\n"+
                     DeviceInfo.getInstance(getActivityRef()).getDeviceInfo();
 
+
             try{
 
                 emailIntent = new Intent(Intent.ACTION_SEND);
@@ -73,7 +76,7 @@ public class Mail {
                     public void processFinish(File output) {
                         imageFile = output;
                     }
-                }).execute();
+                },getActivityRef().findViewById(R.id.game_screen_parent)).execute();
 
                 new Handler().postDelayed(new Runnable() {
                     @Override
@@ -95,7 +98,7 @@ public class Mail {
                         getActivityRef().startActivity(emailIntent);
 
                     }
-                },500);
+                },1000);
 
             }catch (Exception e){
                 FirebaseCrashlytics.getInstance().recordException(e);

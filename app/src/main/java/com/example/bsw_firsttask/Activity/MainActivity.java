@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
 
         if(preferencesManager.getBG() == 1)
             loadBackground();
+        else
+            activity.setBackgroundResource(R.color.white);
 
        // getFirebaseRegistrationToken();
 
@@ -253,9 +255,9 @@ public class MainActivity extends AppCompatActivity implements ExitInterstitialA
     private void hideNavigationAndStatusBar(View decorView) {
 
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+//            getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+//        }
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION

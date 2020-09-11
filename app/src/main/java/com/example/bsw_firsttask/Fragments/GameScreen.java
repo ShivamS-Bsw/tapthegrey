@@ -64,6 +64,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean dialogClosed = true;
     private boolean currentFragment = true;
     private long mLastClickTime = 0;
+    private CountDownTimer countDownTimer;
     private int maxCountdownTime, gameTime;
 
     public GameScreen(){
@@ -118,16 +119,16 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             preferencesManager.clearReplayGame();
         }
 
-
         scoreTextView.setText(String.valueOf(scoreCount));
         support.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 2000) {
+                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
+                    showLogs("Click Returned");
                     return;
-
                 }
+
                 mLastClickTime = SystemClock.elapsedRealtime();
                 email();
 
@@ -137,7 +138,12 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
     private void email(){
 
-        pauseHandler();
+        showLogs("Email Method Called");
+
+        if(countDownTimer != null )
+            countDownTimer.cancel();
+
+        mStopHandler = true;
         Mail.getInstance(getActivity()).sendEmail(scoreCount);
 
     }
@@ -172,7 +178,8 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void startCountDown(){
 
         timer.setVisibility(View.VISIBLE);
-        new CountDownTimer(maxCountdownTime,1000){
+
+        countDownTimer = new CountDownTimer(maxCountdownTime,1000){
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -385,6 +392,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private void pauseHandler(){
 
         mStopHandler = true;
+
+        if(countDownTimer != null)
+            countDownTimer.cancel();
 
         if(handler != null)
             handler.removeCallbacksAndMessages(null);

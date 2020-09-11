@@ -2,12 +2,14 @@ package com.example.bsw_firsttask.Fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,42 +39,42 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private SharedPreferencesManager sharedPreferencesManager;
 
     private RewardAdCallbacks rewardedAdCallback;
-
+    private long mLastClickTime = 0;
     private boolean isRewardAdRequested;
     private RewardItem rewardItem;
     private int currentScore;
+    private LinearLayout animationLayout;
     private LottieAnimationView lottieAnimationView;
     private FrameLayout progressBar;
     public GameOverScreen(){ }
-    private ConstraintLayout gameOver;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_game_over,container,false);
 
-        sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
-        gameOver = view.findViewById(R.id.game_over_parent);
-
-
-        setBackground();
         initViews(view);
         return view;
     }
 
-    private void setBackground(){
-
-        if(sharedPreferencesManager.getBG() == 0 )
-            gameOver.setBackgroundResource(R.color.white);
-        else
-            gameOver.setBackgroundResource(0);
-    }
 
     private void initClasses(){
-         mediaHandler = MediaHandler.getInstance(getContext());
+
+        sharedPreferencesManager = SharedPreferencesManager.getInstance(getContext());
+        mediaHandler = MediaHandler.getInstance(getContext());
         AdMobHandler.getInstance(getActivity()).setRewardedAdCallback(rewardedAdCallback);
     }
 
+    private void createLottieAnimation(){
+
+        lottieAnimationView = new LottieAnimationView(getContext());
+        lottieAnimationView.setAnimation(R.raw.best_score_animation);
+        lottieAnimationView.loop(true);
+
+        animationLayout.addView(lottieAnimationView);
+        lottieAnimationView.playAnimation();
+
+    }
     private void initListeners(){
 
         if(replay != null)
@@ -106,13 +108,12 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private void initViews(View v) {
 
         isRewardAdRequested = false;
-
         best = v.findViewById(R.id.best);
         points = v.findViewById(R.id.points);
         replay = v.findViewById(R.id.replay_btn);
         home = v.findViewById(R.id.home_btn);
         progressBar = v.findViewById(R.id.progress_indicator_game_over);
-        lottieAnimationView = v.findViewById(R.id.animation);
+        animationLayout = v.findViewById(R.id.animation_layout);
     }
 
     @Override
@@ -144,7 +145,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
         if(currentScore >= sharedPreferencesManager.getBestScore()){
 
-            lottieAnimationView.playAnimation();
+            createLottieAnimation();
 
             sharedPreferencesManager.setBestScore(currentScore);
             best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
@@ -180,7 +181,13 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onClick(View v) {
 
+        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
+            showLogs("Click Returned");
+            return;
+        }
+
         mediaHandler.playOnButtonClick();
+        mLastClickTime = SystemClock.elapsedRealtime();
 
         if(v.getId() == R.id.replay_btn){
 
@@ -270,7 +277,11 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        lottieAnimationView.destroyDrawingCache();
+
+        if(lottieAnimationView != null)
+            lottieAnimationView.destroyDrawingCache();
+
+        lottieAnimationView = null;
     }
 
     @Override
@@ -280,6 +291,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         if(isRewardAdRequested){
 
             showLogs("On Pause Called");
+
             getActivity().overridePendingTransition(android.R.anim.slide_in_left,0);
         }
     }

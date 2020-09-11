@@ -26,6 +26,7 @@ import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Dialogs.CustomDialog;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
+import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.Utils.FirebaseAnalyticsHelper;
 import com.example.bsw_firsttask.R;
 import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
@@ -43,6 +44,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
     private Button crash;
     private ConstraintLayout home;
     private Bundle params;
+    private TextView tap_Text;
 
     public HomeScreen(){ }
 
@@ -56,28 +58,21 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         preferencesManager = SharedPreferencesManager.getInstance(getContext());
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
 
-        setBackground();
-
-        crash = view.findViewById(R.id.crash);
-
-        crash.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                throw new RuntimeException("Test Crash");
-            }
-        });
 
         initView(view);
+        setBackground();
+
         return view;
     }
 
     private void setBackground(){
 
         if(preferencesManager.getBG() == 0 ){
-            home.setBackgroundResource(R.color.blue_gray);
+            tap_Text.setTextColor(getResources().getColor(R.color.black));
         }
         else
-            home.setBackgroundResource(0);
+            tap_Text.setTextColor(getResources().getColor(R.color.white));
+
     }
     private void showLogs(String instance_not_null) {
 
@@ -105,6 +100,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         locale = view.findViewById(R.id.locale);
         playButton = view.findViewById(R.id.btnPlay);
         progressLoader = view.findViewById(R.id.progress_indicator_homescreen);
+        tap_Text = view.findViewById(R.id.textView2);
     }
 
     public static void showLoader(){
@@ -125,6 +121,8 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener 
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                MediaHandler.getInstance(getContext()).playOnButtonClick();
                 continueGame();
             }
         });

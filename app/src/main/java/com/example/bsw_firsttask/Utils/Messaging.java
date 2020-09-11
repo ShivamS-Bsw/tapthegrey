@@ -77,11 +77,11 @@ public class Messaging extends FirebaseMessagingService {
             channel.enableLights(true);
             channel.enableVibration(true);
 
-            assert notificationManager != null;
-            notificationManager.createNotificationChannel(channel);
+            if(notificationManager != null)
+                notificationManager.createNotificationChannel(channel);
         }
 
-        assert notificationManager != null;
-        notificationManager.notify(0 , notificationBuilder.build());
+        if(notificationManager != null)
+            notificationManager.notify(0 , notificationBuilder.build());
     }
 }
