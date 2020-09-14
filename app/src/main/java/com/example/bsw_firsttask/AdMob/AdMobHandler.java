@@ -62,25 +62,22 @@ public class AdMobHandler {
 
         if(getActivityRef() != null){
 
-//            loadAdView();
+            loadAdView();
             initExitInterstitialAd();
             loadNativeAd();
             initRewardedAd();
         }
     }
-    public void loadAdView(){
+    private void loadAdView(){
 
         Activity activity = getActivityRef();
 
         if (adView != null && activity != null) {
             ((LinearLayout) activity.findViewById(R.id.ad_layout)).removeView(adView);
-            adView = null;
+             adView = null;
         }
 
         if(activity != null){
-
-            LinearLayout adParent = activity.findViewById(R.id.ad_layout);
-            adParent.setVisibility(View.VISIBLE);
 
             adView = new AdView(activity);
 
@@ -89,7 +86,6 @@ public class AdMobHandler {
 
             adView.setAdUnitId(Constants.BANNER_ADunit_ID);
             adView.loadAd(getAdRequest());
-            adParent.addView(adView);
 
             adView.setAdListener(new AdListener() {
                 @Override
@@ -123,36 +119,41 @@ public class AdMobHandler {
 
                 }
             });
-
-            showBannerAd();
         }
     }
 
-    private void showBannerAd() {
+    public void showBannerAd() {
 
         if(getActivityRef() != null && adView != null){
 
-            View adParent = (getActivityRef().findViewById(R.id.ad_layout));
+            if(adView.getParent() == null){
 
-            adParent.setVisibility(View.VISIBLE);
+                LinearLayout adParent = (getActivityRef().findViewById(R.id.ad_layout));
+                adParent.addView(adView);
+               // adParent.setVisibility(View.VISIBLE);
+            }
             if (adView != null) {
                 adView.resume();
             }
+        }else if(adView != null && !adView.isLoading() ){
+            loadAdView();
         }
     }
 
-    private void hideBannerAd(){
-
-        if (getActivityRef() != null) {
-            final View adLayout = getActivityRef().findViewById(R.id.ad_layout);
-            if (adLayout != null) {
-                adLayout.setVisibility(View.GONE);
-            }
-            if (adView != null) {
-                adView.pause();
-            }
-        }
-    }
+//    private void hideBannerAd(){
+//
+//        if (getActivityRef() != null) {
+//            LinearLayout adLayout = getActivityRef().findViewById(R.id.ad_layout);
+//            adLayout.removeView(adView);
+//
+//            if (adLayout != null) {
+//                adLayout.setVisibility(View.GONE);
+//            }
+//            if (adView != null) {
+//                adView.pause();
+//            }
+//        }
+//    }
 
     private AdLoader adLoader;
 

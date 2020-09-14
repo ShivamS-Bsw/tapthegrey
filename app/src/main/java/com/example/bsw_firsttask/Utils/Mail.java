@@ -75,12 +75,6 @@ public class Mail {
                     @Override
                     public void processFinish(File output) {
                         imageFile = output;
-                    }
-                },getActivityRef().findViewById(R.id.game_screen_parent)).execute();
-
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
 
                         if (imageFile != null){
 
@@ -98,7 +92,7 @@ public class Mail {
                         getActivityRef().startActivity(emailIntent);
 
                     }
-                },1000);
+                }).execute();
 
             }catch (Exception e){
                 FirebaseCrashlytics.getInstance().recordException(e);

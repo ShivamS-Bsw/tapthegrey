@@ -35,8 +35,8 @@ import java.util.Random;
 public class GameScreen extends Fragment implements View.OnClickListener , CustomDialog.DialogListener , CustomDialog.DialogLifecycleListener {
 
     public static final String TAG = GameScreen.class.getSimpleName();
-    private TextView scoreTextView,timer;
-    private Button button1,button2,button3,button4,support;
+    private TextView scoreTextView,timer,support;
+    private Button button1,button2,button3,button4;
     private Random rand;
     private int currentButton, lastButton;
     private Handler handler;
@@ -172,7 +172,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         button3= view.findViewById(R.id.button10);
         button4= view.findViewById(R.id.button11);
         timer = view.findViewById(R.id.countdown);
-        support = view.findViewById(R.id.button_support);
+        support = view.findViewById(R.id.mail_us);
     }
 
     private void startCountDown(){

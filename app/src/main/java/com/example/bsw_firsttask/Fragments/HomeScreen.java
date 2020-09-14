@@ -71,6 +71,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
         scaleAnimation = AnimationUtils.loadAnimation(getContext(),R.anim.scale_animation);
 
         AdMobHandler.getInstance(getActivity()).setExitInterstitialAdCallback(adCallback);
+        AdMobHandler.getInstance(getActivity()).showBannerAd();
 
         initView(view);
         setBackground();

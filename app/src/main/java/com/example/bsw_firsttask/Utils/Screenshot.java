@@ -20,19 +20,18 @@ public class Screenshot extends AsyncTask<Void,Void,File>{
     private WeakReference<Activity> activityReference;
     private Bitmap bitmap;
     private File imageFile;
-    private View view;
 
-    Screenshot(Activity activity,AsyncResponse response,View view){
+    Screenshot(Activity activity,AsyncResponse response){
         activityReference = new WeakReference<>(activity);
         this.delegate = response;
-        this.view = view;
     }
 
     @Override
     protected void onPreExecute() {
 
-        if(view != null ){
+        if(activityReference.get() != null ){
 
+            View view = activityReference.get().findViewById(R.id.game_screen_parent);
             bitmap = Bitmap.createBitmap(view.getWidth(),
                     view.getHeight(), Bitmap.Config.ARGB_8888);
             view.draw(new Canvas(bitmap));

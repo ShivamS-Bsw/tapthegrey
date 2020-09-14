@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/main_parent"
+    android:background="@drawable/bg_image"
     tools:context=".Activity.MainActivity">
 
        <FrameLayout
@@ -16,6 +17,7 @@
            app:layout_constraintEnd_toEndOf="parent"
            app:layout_constraintBottom_toTopOf="@id/ad_layout"
            android:layout_height="0dp">
+
            </FrameLayout>
 
     <LinearLayout
@@ -25,7 +27,6 @@
         android:orientation="vertical"
         android:id="@+id/ad_layout"
         android:layout_width="0dp"
-        android:visibility="gone"
-        android:layout_height="wrap_content"/>
+        android:layout_height="50dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

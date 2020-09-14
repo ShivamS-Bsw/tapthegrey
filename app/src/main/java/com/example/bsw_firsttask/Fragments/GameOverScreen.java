@@ -34,7 +34,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
 
     private MediaHandler mediaHandler;
     public static final String TAG = GameOverScreen.class.getSimpleName();
-    private TextView points,best;
+    private TextView points,best,gameOverText,scoreText;
     private Button replay,home;
     private SharedPreferencesManager sharedPreferencesManager;
 
@@ -54,6 +54,13 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
         View view = inflater.inflate(R.layout.fragment_game_over,container,false);
 
         initViews(view);
+        initClasses();
+
+        if(sharedPreferencesManager != null  && sharedPreferencesManager.getBG() == 1){
+
+            scoreText.setTextColor(getResources().getColor(R.color.white));
+            gameOverText.setTextColor(getResources().getColor(R.color.white));
+        }
         return view;
     }
 
@@ -107,6 +114,8 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private void initViews(View v) {
 
         isRewardAdRequested = false;
+        gameOverText = v.findViewById(R.id.game_over);
+        scoreText = v.findViewById(R.id.level_indicator);
         best = v.findViewById(R.id.best);
         points = v.findViewById(R.id.points);
         replay = v.findViewById(R.id.replay_btn);
@@ -119,7 +128,6 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        initClasses();
         initListeners();
 
         best.setText(String.valueOf(sharedPreferencesManager.getBestScore()));
