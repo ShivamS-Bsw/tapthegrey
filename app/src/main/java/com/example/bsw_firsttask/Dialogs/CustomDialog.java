@@ -208,15 +208,13 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
             switch (v.getId()){
 
                 case R.id.dialog_button1:
-
-                    listener.positive();
+                listener.positive();
                     break;
                 case R.id.dialog_button2:
 
                     listener.negative();
                     break;
                 case R.id.close_dialog:
-
                     listener.close();
                     break;
             }
@@ -268,7 +266,7 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
 
         try {
 
-            listener = (DialogListener) getTargetFragment();
+           listener = (DialogListener) getTargetFragment();
             lifecycleListener = (DialogLifecycleListener) getTargetFragment();
 
         }catch (ClassCastException e){

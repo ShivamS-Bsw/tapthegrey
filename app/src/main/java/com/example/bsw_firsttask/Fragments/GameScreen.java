@@ -63,9 +63,9 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
     private boolean dialogResumed = false;
     private boolean dialogClosed = true;
     private boolean currentFragment = true;
-    private long mLastClickTime = 0;
     private CountDownTimer countDownTimer;
     private int maxCountdownTime, gameTime;
+    private boolean isMailClicked =  false;
 
     public GameScreen(){
 
@@ -124,17 +124,15 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
             @Override
             public void onClick(View v) {
 
-                if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
-                    showLogs("Click Returned");
-                    return;
+                if(!isMailClicked){
+                    email();
                 }
 
-                mLastClickTime = SystemClock.elapsedRealtime();
-                email();
-
+                isMailClicked = true;
             }
         });
     }
+
 
     private void email(){
 
@@ -336,6 +334,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
 
         showLogs("On Resume Called");
 
+        isMailClicked = false;
         currentFragment = true;
 
         if(!dialogResumed && dialogClosed ){
@@ -413,7 +412,7 @@ public class GameScreen extends Fragment implements View.OnClickListener , Custo
         if(dialog == null){
 
             dialog = new CustomDialog(getContext(),R.string.save_game);
-            dialog.setTargetFragment(GameScreen.this,1);
+            dialog.setTargetFragment(GameScreen.this,101);
 
         }
 

@@ -39,7 +39,7 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     private SharedPreferencesManager sharedPreferencesManager;
 
     private RewardAdCallbacks rewardedAdCallback;
-    private long mLastClickTime = 0;
+    private boolean isButtonClicked = false;
     private boolean isRewardAdRequested;
     private RewardItem rewardItem;
     private int currentScore;
@@ -188,22 +188,20 @@ public class GameOverScreen extends Fragment implements View.OnClickListener,Rew
     @Override
     public void onClick(View v) {
 
-        if (SystemClock.elapsedRealtime() - mLastClickTime < 1000){
-            showLogs("Click Returned");
-            return;
-        }
+        if(v.getId() == R.id.replay_btn && !isButtonClicked){
 
-        mediaHandler.playOnButtonClick();
-        mLastClickTime = SystemClock.elapsedRealtime();
-
-        if(v.getId() == R.id.replay_btn){
-
+            mediaHandler.playOnButtonClick();
             if(!showReplayAd() )
                 returnToGameScreen();
 
-        }else if(v.getId() == R.id.home_btn ){
+        }
+        else if(v.getId() == R.id.home_btn && !isButtonClicked){
+
+            mediaHandler.playOnButtonClick();
             returnToHomeMenu();
         }
+
+        isButtonClicked = true;
     }
 
     private void returnToGameScreen(){

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,23 +11,20 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.bumptech.glide.Glide;
 import com.example.bsw_firsttask.Activity.MainActivity;
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
 import com.example.bsw_firsttask.Dialogs.CustomDialog;
 import com.example.bsw_firsttask.Constants.Constants;
+import com.example.bsw_firsttask.Dialogs.ExitDialog;
 import com.example.bsw_firsttask.Factory.FactoryClass;
 import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.Utils.FirebaseAnalyticsHelper;
@@ -37,17 +33,17 @@ import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 
 import java.util.Calendar;
 
-public class HomeScreen extends Fragment implements CustomDialog.DialogListener, ExitInterstitialAdCallback{
+public class HomeScreen extends Fragment implements CustomDialog.DialogListener, ExitInterstitialAdCallback,ExitDialog.ExitDialogListener{
 
     private ImageButton playButton;
     private Button locale;
     private SharedPreferencesManager preferencesManager;
     private Animation scaleAnimation;
-    private CustomDialog dialog;
+    private CustomDialog continueDialog;
+    private ExitDialog exitDialog;
     private static final String TAG = HomeScreen.class.getSimpleName();
     private Bundle params;
     private TextView tap_Text;
-    private DialogType type;
     private ProgressBar progressBar;
 
     @Override
@@ -56,7 +52,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
         showExitDialog();
     }
 
-    private enum  DialogType{Continue,Exit};
     private ExitInterstitialAdCallback adCallback;
     public HomeScreen(){ }
 
@@ -127,8 +122,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
     private void continueGame(){
 
         if(preferencesManager.checkSavedGame()){
-            type = DialogType.Continue;
-            showAlertDialog(R.string.continue_game);
+            showContinueDialog(R.string.continue_game);
 
         }else {
             newGame();
@@ -174,13 +168,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
     @Override
     public void onPause() {
         super.onPause();
-
-//        if(getActivity() != null )
-//            getActivity().overridePendingTransition(android.R.anim.slide_in_left,android.R.anim.slide_out_right);
-
     }
-
-
 
     @Override
     public void onStop() {
@@ -190,15 +178,15 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
             scaleAnimation.cancel();
     }
 
-    private void showAlertDialog(int titleId){
+    private void showContinueDialog(int titleId){
 
-        dialog = new CustomDialog(getContext(),titleId);
-        dialog.setTargetFragment(HomeScreen.this,1);
+        continueDialog = new CustomDialog(getContext(),titleId);
+        continueDialog.setTargetFragment(HomeScreen.this,1);
 
         if(getFragmentManager() != null)
-            dialog.show(getFragmentManager(),"custom_dialog");
+            continueDialog.show(getFragmentManager(),"custom_dialog");
 
-        dialog.setRetainInstance(true);
+        continueDialog.setRetainInstance(true);
 
     }
 
@@ -258,8 +246,6 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
     @Override
     public void positive() {
 
-        if(type == DialogType.Continue){
-
             params.putBoolean("is_saved_game",true);
             FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_1,params);
 
@@ -267,16 +253,10 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
             if(getActivity() != null)
                 FactoryClass.getInstance().moveToNextScreen(getActivity(),Constants.GAMESCREEN_TAG,null,true);
 
-        }else if(getActivity() != null){
-            ((MainActivity)getActivity()).finishActivity();
-        }
-
     }
 
     @Override
     public void negative() {
-
-        if(type == DialogType.Continue){
 
             params.putBoolean("is_saved_game",false);
             FirebaseAnalyticsHelper.logCustomEvents(getContext(),Constants.EVENT_1,params);
@@ -286,30 +266,31 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
                 preferencesManager.clearSavedGame();
 
             newGame();
-        }else{
-            dialog.dismiss();
-        }
-
     }
 
     @Override
     public void close() {
-        //Close the dialog
-        dialog.dismiss();
+        //Close the continueDialog
+        continueDialog.dismiss();
     }
-
-    private void automateScreen(){
-
-        // 1. Press the Play Button
-        playButton.performClick();
-    }
-
+//
+//    private void automateScreen(){
+//
+//        // 1. Press the Play Button
+//        playButton.performClick();
+//    }
+//
     private void showExitDialog(){
 
-        type = DialogType.Exit;
-        showAlertDialog(R.string.exit);
-    }
+        exitDialog = new ExitDialog(getContext(),R.string.exit);
+        exitDialog.setTargetFragment(HomeScreen.this,2);
 
+        if(getFragmentManager() != null)
+            exitDialog.show(getFragmentManager(),"custom_dialog");
+
+        exitDialog.setRetainInstance(true);
+
+    }
     public void onBackPressed(){
 
         if( !showExitInterstitialAd()){
@@ -328,5 +309,20 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
                 && ((lastShown == 0 || (Calendar.getInstance().getTimeInMillis() - lastShown) >= 60000))
                 && ((MainActivity) getActivity()).showExitInterstitialAd()
                 && showLoader();
+    }
+
+    @Override
+    public void exit() {
+
+        if(getActivity() != null ) {
+            ((MainActivity)getActivity()).finishActivity();
+        }
+    }
+
+    @Override
+    public void dontExit() {
+
+        if(exitDialog != null)
+            exitDialog.dismiss();
     }
 }
