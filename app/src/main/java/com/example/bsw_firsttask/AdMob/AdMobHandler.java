@@ -5,13 +5,11 @@ import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
-import android.view.View;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 
 import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
-import com.example.bsw_firsttask.Callbacks.NativeAdCallback;
 import com.example.bsw_firsttask.Callbacks.RewardAdCallbacks;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.R;
@@ -42,7 +40,6 @@ public class AdMobHandler {
     private RewardAdCallbacks rewardedAdCallback;
     private Handler nativeHandler;
     public UnifiedNativeAd unifiedNativeAd;
-    private NativeAdCallback nativeAdCallback;
 
     private AdView adView;
 
@@ -162,14 +159,11 @@ public class AdMobHandler {
         Activity activity = getActivityRef();
         if(activity != null){
 
-            nativeHandler = new Handler();
-
             AdLoader.Builder builder = new AdLoader.Builder(activity,Constants.NATIVE_ADunit_ID);
             builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
 
                 @Override
                 public void onUnifiedNativeAdLoaded(UnifiedNativeAd unifiedNativeAds) {
-
                     setUnifiedNativeAd(unifiedNativeAds);
                 }
             });
@@ -187,34 +181,19 @@ public class AdMobHandler {
                 }
                 @Override
                 public void onAdLoaded() {
-
                     Log.i("Native Ad","Ad Loaded");
-                    if (nativeHandler != null)
-                            nativeHandler.postDelayed(nativeRunnable, 1000 * 60);
                 }
                 @Override
                 public void onAdFailedToLoad(int errorCode) {
-
                     Log.i("Native Ad","Ad Failed to Load");
-
-                    if (nativeHandler != null)
-                            nativeHandler.postDelayed(nativeRunnable, 1000 * 60);
                 }
                 @Override
                 public void onAdClicked() {
-
                     Log.d("UnifiedNativeAd", "onAdClicked: ");
-
-                    if (nativeHandler != null)
-                            nativeHandler.removeCallbacks(nativeRunnable);
                 }
-
                 @Override
                 public void onAdClosed() {
-
                     Log.i("Native Ad","Ad Closed");
-                    if(nativeAdCallback!=null)
-                        nativeAdCallback.onAdClosed();
                 }
             }).build();
 
@@ -222,14 +201,19 @@ public class AdMobHandler {
         }
     }
 
-    Runnable nativeRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (adLoader != null)
-                 adLoader.loadAd(new AdRequest.Builder().build());
-        }
-    };
+    public boolean showNativeAd(){
 
+        if(getActivityRef() != null){
+
+            if(getUnifiedNativeAd() != null )
+                return true;
+            else if(adLoader != null && !adLoader.isLoading() ){
+                loadNativeAd();
+                return false;
+            }
+        }
+        return false;
+    }
 
     public void initRewardedAd(){
 
@@ -410,11 +394,6 @@ public class AdMobHandler {
 
         if(adView != null)
             adView.resume();
-
-        if(nativeHandler == null ){
-            nativeHandler = new Handler();
-            nativeHandler.post(nativeRunnable);
-        }
     }
 
     public void onPause() {
@@ -422,10 +401,6 @@ public class AdMobHandler {
         if(adView != null)
             adView.pause();
 
-        if (nativeHandler != null) {
-            nativeHandler.removeCallbacks(nativeRunnable);
-            nativeHandler = null;
-        }
     }
     public void onClose(){
 
@@ -441,6 +416,10 @@ public class AdMobHandler {
             adView.destroy();
             adView = null;
         }
+
+        if(unifiedNativeAd != null)
+            unifiedNativeAd.destroy();
+
         exitInterstitialAd = null;
         rewardedAd = null;
     }

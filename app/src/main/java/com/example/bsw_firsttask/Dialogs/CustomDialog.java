@@ -76,7 +76,9 @@ public class CustomDialog extends DialogFragment implements View.OnClickListener
         getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
 
-        showNativeAd();
+        if(AdMobHandler.getInstance(getActivity()).showNativeAd())
+            showNativeAd();
+
         return view;
     }
 
