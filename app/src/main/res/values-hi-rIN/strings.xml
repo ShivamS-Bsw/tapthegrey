@@ -20,4 +20,6 @@
     <string name="no">नहीं</string>
     <string name="mail_us">हमें मेल करें</string>
     <string name="exit">Are you want to exit</string>
+    <string name="i_m_d_chitty">I\'m %d Chitty</string>
+    <string name="d_hello_world">%d Hello World</string>
 </resources>

@@ -18,22 +18,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    dynamicFeatures = [':feature']
 
-    flavorDimensions 'default'
-    productFlavors {
-
-        free {
-
-            dimension 'default'
-            applicationId "com.example.bsw_firsttask.free"
-            resValue "string", "app_name", "Tap Grey"
-        }
-        paid {
-            dimension 'default'
-            applicationId "com.example.bsw_firsttask.paid"
-            resValue "string", "app_name", "Tap Grey"
-        }
-    }
+//    flavorDimensions 'default'
+//    productFlavors {
+//
+//        free {
+//
+//            dimension 'default'
+//            applicationId "com.example.bsw_firsttask.free"
+//            resValue "string", "app_name", "Tap Grey"
+//        }
+//        paid {
+//            dimension 'default'
+//            applicationId "com.example.bsw_firsttask.paid"
+//            resValue "string", "app_name", "Tap Grey"
+//        }
+//    }
 }
 
 // no facebook adapter & you said you learn about mediation?

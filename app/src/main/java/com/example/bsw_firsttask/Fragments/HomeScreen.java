@@ -43,7 +43,7 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
     private ExitDialog exitDialog;
     private static final String TAG = HomeScreen.class.getSimpleName();
     private Bundle params;
-    private TextView tap_Text;
+    private TextView tap_Text , t1,t2;
     private ProgressBar progressBar;
 
     @Override
@@ -136,6 +136,11 @@ public class HomeScreen extends Fragment implements CustomDialog.DialogListener,
         playButton = view.findViewById(R.id.btnPlay);
         tap_Text = view.findViewById(R.id.textView2);
         progressBar = view.findViewById(R.id.ad_loader);
+        t1 = view.findViewById(R.id.t1);
+        t2 = view.findViewById(R.id.t2);
+
+        t1.setText(String.format(getString(R.string.d_hello_world),2));
+        t2.setText(String.format(getString(R.string.i_m_d_chitty),2));
     }
 
     @Override

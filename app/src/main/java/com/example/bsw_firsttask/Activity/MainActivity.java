@@ -8,8 +8,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,7 +29,6 @@ import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.bsw_firsttask.AdMob.AdMobHandler;
 import com.example.bsw_firsttask.BuildConfig;
-import com.example.bsw_firsttask.Callbacks.ExitInterstitialAdCallback;
 import com.example.bsw_firsttask.Constants.Constants;
 import com.example.bsw_firsttask.Factory.FactoryClass;
 import com.example.bsw_firsttask.Fragments.GameOverScreen;
@@ -35,7 +37,6 @@ import com.example.bsw_firsttask.Fragments.HomeScreen;
 import com.example.bsw_firsttask.Fragments.SplashScreen;
 import com.example.bsw_firsttask.Media.MediaHandler;
 import com.example.bsw_firsttask.R;
-import com.example.bsw_firsttask.SharedPref.SharedPreferencesManager;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -43,6 +44,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.example.bsw_firsttask.SharedPref.*;
+import com.example.bsw_firsttask.Callbacks.*;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
 import java.util.Locale;
@@ -68,15 +71,15 @@ public class MainActivity extends AppCompatActivity {
         initializeAdmMod();
 
 
-        if(firebaseRemoteConfig != null)
+        if (firebaseRemoteConfig != null)
             fetchRemoteConfig();
 
-        if(preferencesManager.getBG() == 1)
+        if (preferencesManager.getBG() == 1)
             loadBackground();
         else
             activity.setBackgroundResource(R.color.white);
 
-       // getFirebaseRegistrationToken();
+        // getFirebaseRegistrationToken();
 
         AdMobHandler.getInstance(MainActivity.this).initAllAds();
 
@@ -90,8 +93,8 @@ public class MainActivity extends AppCompatActivity {
             showLogs("Saved Instance State not null" + savedInstanceState);
         }
 
-        if (BuildConfig.FLAVOR.equals("paid"))
-            loadLocale();
+//        if (BuildConfig.FLAVOR.equals("paid"))
+        loadLocale();
 
     }
 

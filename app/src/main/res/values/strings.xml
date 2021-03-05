@@ -1,5 +1,5 @@
 <resources>
-<!--    <string name="app_name">BSW_FirstTask</string>-->
+    <!--    <string name="app_name">BSW_FirstTask</string>-->
     <string name="splash_screen">Splash Screen</string>
 
     <!-- TODO: Remove or change this placeholder text -->
@@ -18,4 +18,7 @@
     <string name="no">No</string>
     <string name="mail_us">Mail Us</string>
     <string name="exit">Are you sure want to exit?</string>
+    <string name="title_feature">Module Title</string>
+    <string name="i_m_d_chitty">I\'m %d Chitty</string>
+    <string name="d_hello_world">%d Hello World</string>
 </resources>

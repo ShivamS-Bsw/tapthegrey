@@ -20,4 +20,7 @@
     <string name="no">لا</string>
     <string name="mail_us">البريد لنا</string>
     <string name="exit">Are you want to exit</string>
+    <string name="i_m_d_chitty"> مرحبا بالع %dالم</string>
+    <string name="d_hello_world">%d مرحبا بالعالم</string>
+
 </resources>

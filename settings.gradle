@@ -1,2 +1,3 @@
+include ':feature'
 include ':app'
 rootProject.name='BSW_FirstTask'
